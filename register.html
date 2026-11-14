@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <style>
+    body { min-height: 100vh; display: flex; overflow-y: auto; }
+    .auth-left {
+      flex: 1;
+      background: var(--grad-hero);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: var(--space-16);
+      position: relative; overflow: hidden;
+    }
+    .auth-bg-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(99,102,241,0.05) 1px,transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px,transparent 1px);
+      background-size: 50px 50px; pointer-events: none;
+    }
+    .auth-left-content { position: relative; z-index: 2; max-width: 440px; }
+    .auth-right {
+      width: 520px; background: var(--surface-1);
+      display: flex; flex-direction: column; justify-content: center;
+      padding: var(--space-10) var(--space-10);
+      border-left: var(--border-subtle); overflow-y: auto;
+    }
+    .auth-form { display: flex; flex-direction: column; gap: var(--space-4); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    .input-with-icon { position: relative; }
+    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-500); font-size: 14px; pointer-events: none; }
+    .input-with-icon .form-input { padding-left: 40px; }
+    .strength-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease, background 0.3s ease; width: 0%; }
+    .social-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px; background: var(--surface-3); border: var(--border-card); border-radius: var(--radius-md); font-size: 14px; font-weight: 500; color: var(--gray-200); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; flex: 1; }
+    .social-btn:hover { background: var(--surface-4); }
+    .divider { display: flex; align-items: center; gap: 16px; color: var(--gray-600); font-size: 12px; margin: 4px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .benefits-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+    .benefits-list li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--gray-300); }
+    .benefit-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    @media (max-width: 768px) { .auth-left { display: none; } .auth-right { width: 100%; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="auth-left">
+    <div class="auth-bg-grid"></div>
+    <div class="glow-orb glow-orb-purple" style="width:600px;height:600px;top:-200px;right:-200px;"></div>
+    <div class="glow-orb glow-orb-cyan" style="width:400px;height:400px;bottom:-150px;left:-100px;"></div>
+    <div class="auth-left-content animate-fadeInUp">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:40px">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">SKILL<span>NEX</span></span>
+      </a>
+      <h2 style="font-size:34px;font-weight:900;color:var(--gray-50);letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px">
+        Start your AI-powered<br><span class="text-gradient">skill journey</span><br>today — for free.
+      </h2>
+      <p style="font-size:14px;color:var(--gray-400);line-height:1.7;margin-bottom:8px">No credit card required. Cancel anytime.</p>
+      <ul class="benefits-list">
+        <li><div class="benefit-icon" style="background:rgba(99,102,241,0.12)">🧠</div>AI skill gap analysis in under 15 minutes</li>
+        <li><div class="benefit-icon" style="background:rgba(6,182,212,0.12)">🗺️</div>Personalized learning roadmap on day one</li>
+        <li><div class="benefit-icon" style="background:rgba(16,185,129,0.12)">🎯</div>Matched to real job opportunities instantly</li>
+        <li><div class="benefit-icon" style="background:rgba(168,85,247,0.12)">💬</div>AI mentor available 24/7 for guidance</li>
+        <li><div class="benefit-icon" style="background:rgba(245,158,11,0.12)">📊</div>Beautiful progress dashboards & analytics</li>
+      </ul>
+      <div style="margin-top:32px;padding:16px;background:rgba(255,255,255,0.03);border:var(--border-subtle);border-radius:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="display:flex">
+            <div class="avatar avatar-sm" style="background:var(--grad-brand);margin-right:-8px;border:2px solid var(--surface-1)">A</div>
+            <div class="avatar avatar-sm" style="background:var(--grad-cyan);margin-right:-8px;border:2px solid var(--surface-1)">P</div>
+            <div class="avatar avatar-sm" style="background:var(--grad-green);margin-right:-8px;border:2px solid var(--surface-1)">R</div>
+            <div class="avatar avatar-sm" style="background:var(--grad-pink);border:2px solid var(--surface-1)">+</div>
+          </div>
+          <span style="font-size:12px;color:var(--gray-400)"><strong style="color:var(--gray-200)">247,000+ learners</strong> joined this month</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div style="margin-bottom:28px;animation:fadeInUp 0.5s ease both">
+      <div class="badge badge-green" style="margin-bottom:12px">✦ Free Forever Plan Available</div>
+      <h1 style="font-size:26px;font-weight:800;color:var(--gray-50);letter-spacing:-0.02em;margin-bottom:6px">Create your account</h1>
+      <p style="font-size:13px;color:var(--gray-500)">Already have an account? <a href="login.html" style="color:var(--brand-400);text-decoration:none;font-weight:600">Sign in</a></p>
+    </div>
+
+    <!-- Social -->
+    <div style="display:flex;gap:12px;margin-bottom:16px;animation:fadeInUp 0.5s ease 0.1s both">
+      <button type="button" class="social-btn" onclick="handleGoogleLogin()">
+        <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+      <button type="button" class="social-btn" onclick="handleLinkedInLogin()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </button>
+      <button type="button" class="social-btn" onclick="handleGitHubLogin()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="white" style="opacity:0.8"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        GitHub
+      </button>
+    </div>
+    <div class="divider" style="animation:fadeInUp 0.5s ease 0.15s both">or register with email</div>
+
+    <form class="auth-form" style="animation:fadeInUp 0.5s ease 0.2s both" onsubmit="handleRegister(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <div class="input-with-icon"><span class="input-icon">👤</span><input class="form-input" type="text" placeholder="Alex"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" placeholder="Kumar">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <div class="input-with-icon"><span class="input-icon">✉</span><input class="form-input" type="email" placeholder="you@example.com"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-with-icon">
+          <span class="input-icon">🔒</span>
+          <input class="form-input" type="password" id="regPassword" placeholder="Min. 8 characters" oninput="checkStrength(this.value)">
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div id="strengthLabel" style="font-size:11px;color:var(--gray-600);margin-top:3px"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="input-with-icon">
+          <span class="input-icon">🔒</span>
+          <input class="form-input" type="password" id="regPasswordConfirm" placeholder="Re-enter password">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">I am a...</label>
+        <select class="form-input" style="cursor:pointer">
+          <option value="">Select your role</option>
+          <option>Student</option>
+          <option>Working Professional</option>
+          <option>Recruiter / HR</option>
+          <option>Organization / University</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-top:4px">
+        <input type="checkbox" id="terms" style="accent-color:var(--brand-500);width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0">
+        <label for="terms" style="font-size:12px;color:var(--gray-400);cursor:pointer;line-height:1.5">
+          I agree to the <a href="#" style="color:var(--brand-400);text-decoration:none">Terms of Service</a> and <a href="#" style="color:var(--brand-400);text-decoration:none">Privacy Policy</a>
+        </label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">
+        Create Free Account →
+      </button>
+    </form>
+
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--gray-600);animation:fadeInUp 0.5s ease 0.3s both">
+      🔒 256-bit encryption · SOC 2 Type II · GDPR Compliant
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="oauth-handler.js"></script>
+  <script>
+    function checkStrength(val) {
+      const fill = document.getElementById('strengthFill');
+      const label = document.getElementById('strengthLabel');
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const configs = [
+        { width: '0%', color: '', text: '' },
+        { width: '25%', color: '#f43f5e', text: 'Weak' },
+        { width: '50%', color: '#f59e0b', text: 'Fair' },
+        { width: '75%', color: '#06b6d4', text: 'Good' },
+        { width: '100%', color: '#10b981', text: 'Strong ✓' },
+      ];
+      fill.style.width = configs[score].width;
+      fill.style.background = configs[score].color;
+      label.textContent = configs[score].text;
+      label.style.color = configs[score].color;
+    }
+    
+    async function handleRegister(e) {
+      e.preventDefault();
+      const form = e.target;
+      const firstName = form.querySelector('input[placeholder="First Name"]').value;
+      const lastName = form.querySelector('input[placeholder="Last Name"]').value;
+      const email = form.querySelector('input[type="email"]').value;
+      const password = form.querySelector('#regPassword').value;
+      const passwordConfirm = form.querySelector('#regPasswordConfirm').value;
+      const roleSelect = form.querySelector('select').value;
+      const terms = form.querySelector('#terms').checked;
+      const errors = [];
+
+      // Validation
+      if (!firstName.trim()) errors.push('First name is required');
+      if (!lastName.trim()) errors.push('Last name is required');
+      if (!email.includes('@')) errors.push('Please enter a valid email');
+      if (password.length < 8) errors.push('Password must be at least 8 characters');
+      if (password !== passwordConfirm) errors.push('Passwords do not match');
+      if (!roleSelect) errors.push('Please select your role');
+      if (!terms) errors.push('You must accept the terms of service');
+
+      if (errors.length > 0) {
+        showRegistrationError(errors.join('\n'));
+        return;
+      }
+
+      // Map UI role to backend allowed public roles
+      let mappedRole = 'student';
+      if (roleSelect.includes('Professional')) mappedRole = 'professional';
+      else if (roleSelect.includes('Recruiter') || roleSelect.includes('Organization')) mappedRole = 'organization';
+
+      const btn = form.querySelector('button');
+      const originalBtnText = btn.textContent;
+      btn.textContent = '⏳ Creating your account...';
+      btn.disabled = true;
+
+      try {
+        const response = await API.post('/auth/register', {
+          name: `${firstName.trim()} ${lastName.trim()}`,
+          email: email.trim(),
+          password: password,
+          role: mappedRole
+        });
+
+        API.setToken(response.token);
+        API.setUser(response.user);
+        API.showToast('Account created successfully!', 'success');
+
+        setTimeout(() => {
+          window.location.href = 'role-select.html';
+        }, 1000);
+      } catch (err) {
+        btn.textContent = originalBtnText;
+        btn.disabled = false;
+        showRegistrationError(err.message || 'Registration failed. Please try again.');
+      }
+    }
+
+    function showRegistrationError(message) {
+      const existingError = document.querySelector('[role="alert"]');
+      if (existingError) existingError.remove();
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.setAttribute('role', 'alert');
+      errorDiv.style.cssText = 'background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);color:#f43f5e;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.6';
+      errorDiv.textContent = message;
+      
+      const form = document.querySelector('.auth-form');
+      form.parentElement.insertBefore(errorDiv, form);
+    }
+  </script>
+</body>
+</html>

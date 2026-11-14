@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organization Dashboard — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .app-layout { display: flex; min-height: 100vh; }
+    .main-content { margin-left: 260px; flex: 1; padding: var(--space-8); background: var(--surface-0); }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); margin-bottom: var(--space-8); }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    .content-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-5); margin-bottom: var(--space-6); }
+
+    .dept-row {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .dept-row:last-child { border-bottom: none; }
+    .dept-row:hover { background: rgba(255,255,255,0.02); border-radius: var(--radius-md); padding-left: 8px; }
+
+    .employee-row {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: 10px var(--space-3);
+      border-radius: var(--radius-md);
+      transition: background var(--transition-fast);
+      cursor: pointer;
+    }
+    .employee-row:hover { background: var(--surface-hover); }
+
+    .skill-heatmap { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+    .heat-cell {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700; cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+    .heat-cell:hover { transform: scale(1.1); }
+    .heat-0 { background: rgba(255,255,255,0.04); color: var(--gray-700); }
+    .heat-1 { background: rgba(244,63,94,0.3); color: var(--accent-rose); }
+    .heat-2 { background: rgba(245,158,11,0.3); color: var(--accent-amber); }
+    .heat-3 { background: rgba(6,182,212,0.3); color: var(--accent-cyan); }
+    .heat-4 { background: rgba(16,185,129,0.4); color: var(--accent-emerald); }
+
+    .initiative-card {
+      padding: var(--space-4);
+      background: rgba(255,255,255,0.02);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    .initiative-card:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:14px">⚡</div>
+        <span class="logo-text" style="font-size:17px">SKILL<span>NEX</span></span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="dashboard-org.html"><span class="nav-icon">🏠</span>Overview</a>
+      <a class="nav-item" href="#"><span class="nav-icon">👥</span>Employees</a>
+      <a class="nav-item" href="skill-gap.html"><span class="nav-icon">📊</span>Skill Gap Analysis</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🗺️</span>Learning Programs</a>
+      <a class="nav-item" href="#"><span class="nav-icon">📋</span>Assignments</a>
+      <div class="nav-section-label">Analytics</div>
+      <a class="nav-item" href="#"><span class="nav-icon">📈</span>Progress Reports</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🏢</span>Departments</a>
+      <a class="nav-item" href="#"><span class="nav-icon">💰</span>ROI Dashboard</a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-item" href="#"><span class="nav-icon">⚙️</span>Settings</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🔐</span>SSO & Security</a>
+      <a class="nav-item" href="login.html" onclick="API.logout(); return false;"><span class="nav-icon">🚪</span>Sign Out</a>
+    </nav>
+    <div style="padding:12px;margin:12px">
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(6,182,212,0.08));border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:11px;font-weight:700;color:var(--accent-emerald);margin-bottom:4px">Enterprise Plan</div>
+        <div style="font-size:10px;color:var(--gray-400)">500 seats · Unlimited</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-8)">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <h1 style="font-size:22px;font-weight:800;color:var(--gray-50);letter-spacing:-0.02em">TechCorp India — L&D Dashboard</h1>
+          <span class="badge badge-green">Enterprise</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray-500)">482 employees · 8 departments · AI Workforce Intelligence · Updated 1h ago</p>
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-secondary">📊 Export Report</button>
+        <button class="btn btn-primary">+ Assign Learning</button>
+      </div>
+    </div>
+
+    <!-- KEY METRICS -->
+    <div class="stats-row">
+      <div class="stat-card animate-fadeInUp" style="border-color:rgba(16,185,129,0.15)">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.12)">👥</div>
+        <div class="stat-value" style="color:var(--accent-emerald)">482</div>
+        <div class="stat-label">Total Employees</div>
+        <div class="stat-change up">↑ 94% enrolled</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-100" style="border-color:rgba(99,102,241,0.15)">
+        <div class="stat-icon" style="background:rgba(99,102,241,0.12)">📊</div>
+        <div class="stat-value text-gradient">67%</div>
+        <div class="stat-label">Avg Skill Score</div>
+        <div class="stat-change up">↑ +9% vs last quarter</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-200">
+        <div class="stat-icon" style="background:rgba(6,182,212,0.12)">📚</div>
+        <div class="stat-value" style="color:var(--accent-cyan)">2,840</div>
+        <div class="stat-label">Learning Hours (Month)</div>
+        <div class="stat-change up">↑ 23% vs last month</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-300">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.12)">💰</div>
+        <div class="stat-value" style="color:var(--accent-amber)">3.8×</div>
+        <div class="stat-label">Training ROI</div>
+        <div class="stat-change up">↑ Industry avg: 2.1×</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="content-grid">
+      <!-- Skill Distribution -->
+      <div class="card animate-fadeInUp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Workforce Skill Distribution</h3>
+            <p style="font-size:12px;color:var(--gray-500)">Across all 8 departments</p>
+          </div>
+          <select class="form-input" style="width:130px;padding:6px 10px;font-size:12px">
+            <option>All Departments</option>
+            <option>Engineering</option>
+            <option>Product</option>
+            <option>Data Science</option>
+          </select>
+        </div>
+        <div style="height:200px"><canvas id="skillDistChart"></canvas></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px">
+          <div style="text-align:center;padding:8px;background:rgba(244,63,94,0.06);border-radius:8px"><div style="font-size:11px;color:var(--accent-rose);font-weight:700">At Risk</div><div style="font-size:18px;font-weight:800;color:var(--gray-100)">48</div><div style="font-size:10px;color:var(--gray-600)">employees</div></div>
+          <div style="text-align:center;padding:8px;background:rgba(245,158,11,0.06);border-radius:8px"><div style="font-size:11px;color:var(--accent-amber);font-weight:700">Developing</div><div style="font-size:18px;font-weight:800;color:var(--gray-100)">187</div><div style="font-size:10px;color:var(--gray-600)">employees</div></div>
+          <div style="text-align:center;padding:8px;background:rgba(16,185,129,0.06);border-radius:8px"><div style="font-size:11px;color:var(--accent-emerald);font-weight:700">Proficient</div><div style="font-size:18px;font-weight:800;color:var(--gray-100)">247</div><div style="font-size:10px;color:var(--gray-600)">employees</div></div>
+        </div>
+      </div>
+
+      <!-- Monthly Progress -->
+      <div class="card animate-fadeInUp delay-100">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Learning Activity</h3>
+            <p style="font-size:12px;color:var(--gray-500)">Hours per month · Last 6 months</p>
+          </div>
+        </div>
+        <div style="height:200px"><canvas id="activityChart"></canvas></div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px">
+          <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--gray-50)">5.9h</div><div style="font-size:10px;color:var(--gray-500)">Avg/employee</div></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--accent-emerald)">↑23%</div><div style="font-size:10px;color:var(--gray-500)">MoM growth</div></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:var(--brand-400)">94%</div><div style="font-size:10px;color:var(--gray-500)">Completion rate</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEPARTMENT + HEATMAP -->
+    <div class="content-grid">
+      <!-- Department Breakdown -->
+      <div class="card animate-fadeInUp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Department Skill Scores</h3>
+          <a href="#" class="btn btn-ghost btn-sm">View Details</a>
+        </div>
+        <div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">Engineering</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:78%"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--brand-400)">78%</div>
+            <span class="badge badge-green" style="font-size:9px">↑4%</span>
+          </div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">Data Science</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:72%;background:var(--grad-cyan)"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--accent-cyan)">72%</div>
+            <span class="badge badge-green" style="font-size:9px">↑7%</span>
+          </div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">Product</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:65%;background:linear-gradient(135deg,#a855f7,#6366f1)"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--accent-purple)">65%</div>
+            <span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05);color:var(--gray-500)">+1%</span>
+          </div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">Operations</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:54%;background:linear-gradient(135deg,var(--accent-amber),#f97316)"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--accent-amber)">54%</div>
+            <span class="badge badge-amber" style="font-size:9px">⚠️ Gap</span>
+          </div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">Finance</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:48%;background:linear-gradient(135deg,var(--accent-rose),var(--accent-pink))"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--accent-rose)">48%</div>
+            <span class="badge badge-pink" style="font-size:9px">❌ Critical</span>
+          </div>
+          <div class="dept-row">
+            <div style="width:140px;font-size:13px;color:var(--gray-300)">HR & People</div>
+            <div style="flex:1"><div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:61%"></div></div></div>
+            <div style="width:50px;text-align:right;font-size:13px;font-weight:700;color:var(--brand-400)">61%</div>
+            <span class="badge badge-green" style="font-size:9px">↑12%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skill Heatmap -->
+      <div class="card animate-fadeInUp delay-100">
+        <div style="margin-bottom:var(--space-5)">
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Skill Coverage Heatmap</h3>
+          <p style="font-size:12px;color:var(--gray-500)">Top 6 departments × critical skills</p>
+        </div>
+        <div style="display:grid;grid-template-columns:100px repeat(6,1fr);gap:4px;font-size:9px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">
+          <div></div>
+          <div style="text-align:center">Eng</div>
+          <div style="text-align:center">DS</div>
+          <div style="text-align:center">Prod</div>
+          <div style="text-align:center">Ops</div>
+          <div style="text-align:center">Fin</div>
+          <div style="text-align:center">HR</div>
+        </div>
+        <div id="heatmapGrid"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px;font-size:10px;color:var(--gray-500)">
+          <div style="display:flex;align-items:center;gap:4px"><div class="heat-cell heat-1" style="width:12px;height:12px"></div>Critical</div>
+          <div style="display:flex;align-items:center;gap:4px"><div class="heat-cell heat-2" style="width:12px;height:12px"></div>Moderate</div>
+          <div style="display:flex;align-items:center;gap:4px"><div class="heat-cell heat-3" style="width:12px;height:12px"></div>Good</div>
+          <div style="display:flex;align-items:center;gap:4px"><div class="heat-cell heat-4" style="width:12px;height:12px"></div>Strong</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEARNING INITIATIVES -->
+    <div class="card animate-fadeInUp" style="margin-bottom:var(--space-6)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+        <div>
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Active Learning Initiatives</h3>
+          <p style="font-size:12px;color:var(--gray-500)">Company-wide training programs</p>
+        </div>
+        <button class="btn btn-primary btn-sm">+ New Initiative</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div class="initiative-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:var(--gray-100)">AI Readiness Program</div>
+            <span class="badge badge-green">Active</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-400);margin-bottom:10px">248 employees enrolled · Q4 2026</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--gray-600)"><span>62% complete</span><span>Dec 31 deadline</span></div>
+        </div>
+        <div class="initiative-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:var(--gray-100)">Cloud Migration Skills</div>
+            <span class="badge badge-cyan">In Progress</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-400);margin-bottom:10px">120 employees · Engineering</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:38%;background:var(--grad-cyan)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--gray-600)"><span>38% complete</span><span>Jan 15 deadline</span></div>
+        </div>
+        <div class="initiative-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:700;color:var(--gray-100)">Leadership Essentials</div>
+            <span class="badge badge-amber">Planning</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-400);margin-bottom:10px">60 managers targeted · Q1 2027</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:12%;background:linear-gradient(135deg,var(--accent-amber),#f97316)"></div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--gray-600)"><span>Setup phase</span><span>Feb 1 start</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP PERFORMERS + AT RISK -->
+    <div class="content-grid">
+      <div class="card animate-fadeInUp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <h3 style="font-size:15px;font-weight:700;color:var(--gray-100)">🏆 Top Performers</h3>
+          <a href="#" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:var(--grad-brand)">AK</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Arjun Kumar</div><div style="font-size:11px;color:var(--gray-500)">Engineering · ML Track</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-emerald)">94%</div><div style="font-size:10px;color:var(--gray-600)">↑12%</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:var(--grad-cyan)">SV</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Sneha Verma</div><div style="font-size:11px;color:var(--gray-500)">Data Science · Cloud</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-emerald)">91%</div><div style="font-size:10px;color:var(--gray-600)">↑8%</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:var(--grad-green)">RM</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Rohit Mehta</div><div style="font-size:11px;color:var(--gray-500)">Engineering · DevOps</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-emerald)">89%</div><div style="font-size:10px;color:var(--gray-600)">↑15%</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:var(--grad-pink)">PJ</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Priya Joshi</div><div style="font-size:11px;color:var(--gray-500)">Product · Analytics</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-emerald)">87%</div><div style="font-size:10px;color:var(--gray-600)">↑6%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card animate-fadeInUp delay-100">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <h3 style="font-size:15px;font-weight:700;color:var(--gray-100)">⚠️ Needs Attention</h3>
+          <button class="btn btn-secondary btn-sm">Assign Training</button>
+        </div>
+        <div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:rgba(244,63,94,0.3)">KP</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Karan Patel</div><div style="font-size:11px;color:var(--gray-500)">Finance · AI Skills</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-rose)">32%</div><div style="font-size:10px;color:var(--accent-rose)">↓4%</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:rgba(244,63,94,0.3)">NS</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Nisha Singh</div><div style="font-size:11px;color:var(--gray-500)">Operations · Digital</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-rose)">38%</div><div style="font-size:10px;color:var(--accent-rose)">↓2%</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:rgba(245,158,11,0.3)">VR</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Vivek Rao</div><div style="font-size:11px;color:var(--gray-500)">Finance · Data Literacy</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-amber)">45%</div><div style="font-size:10px;color:var(--gray-600)">Stagnant</div></div>
+          </div>
+          <div class="employee-row">
+            <div class="avatar avatar-sm" style="background:rgba(245,158,11,0.3)">MD</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--gray-100)">Meera Das</div><div style="font-size:11px;color:var(--gray-500)">HR · Tech Adoption</div></div>
+            <div style="text-align:right"><div style="font-size:14px;font-weight:800;color:var(--accent-amber)">47%</div><div style="font-size:10px;color:var(--accent-emerald)">↑1%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Notification system
+  function showNotification(message, type = 'info') {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: ${type === 'error' ? 'rgba(239,68,68,0.9)' : type === 'success' ? 'rgba(16,185,129,0.9)' : 'rgba(99,102,241,0.9)'};
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      border: 1px solid ${type === 'error' ? 'rgba(239,68,68,0.3)' : type === 'success' ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'};
+      animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+      notif.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => notif.remove(), 300);
+    }, 3500);
+  }
+
+  // Add animation styles
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Skill Distribution (bar)
+  function initSkillDistChart() {
+    const distCtx = document.getElementById('skillDistChart');
+    if (!distCtx) return;
+    
+    new Chart(distCtx.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['<40%', '40-50%', '50-60%', '60-70%', '70-80%', '80%+'],
+        datasets: [{
+          label: 'Employees',
+          data: [18, 30, 48, 139, 162, 85],
+          backgroundColor: ['rgba(244,63,94,0.5)', 'rgba(244,63,94,0.3)', 'rgba(245,158,11,0.4)', 'rgba(6,182,212,0.4)', 'rgba(99,102,241,0.5)', 'rgba(16,185,129,0.5)'],
+          borderColor: ['#f43f5e', '#f43f5e', '#f59e0b', '#06b6d4', '#6366f1', '#10b981'],
+          borderWidth: 1, borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  // Activity Chart (line)
+  function initActivityChart() {
+    const actCtx = document.getElementById('activityChart');
+    if (!actCtx) return;
+    
+    new Chart(actCtx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+        datasets: [{
+          label: 'Hours',
+          data: [1200, 1450, 1680, 2100, 2310, 2840],
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99,102,241,0.1)',
+          borderWidth: 2, fill: true, tension: 0.4,
+          pointBackgroundColor: '#6366f1', pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 } } }
+        }
+      }
+    });
+  }
+
+  // Initialize Heatmap
+  function initHeatmap() {
+    const skills = ['Python', 'ML/AI', 'Cloud', 'SQL', 'DevOps', 'Leadership'];
+    const heatData = [
+      [4,4,3,3,4,3],
+      [4,4,2,2,1,2],
+      [3,2,4,2,1,3],
+      [3,3,2,4,2,3],
+      [2,2,2,3,4,2],
+      [2,3,3,2,2,4],
+    ];
+    const grid = document.getElementById('heatmapGrid');
+    skills.forEach((skill, si) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:100px repeat(6,1fr);gap:4px;margin-bottom:4px;align-items:center';
+      const label = document.createElement('div');
+      label.style.cssText = 'font-size:10px;color:#475569;font-weight:600';
+      label.textContent = skill;
+      row.appendChild(label);
+      heatData[si].forEach((val, idx) => {
+        const cell = document.createElement('div');
+        cell.className = `heat-cell heat-${val}`;
+        cell.style.cssText = 'height:28px;border-radius:4px;cursor:pointer';
+        cell.textContent = val === 1 ? '↓' : val === 4 ? '✓' : '';
+        cell.addEventListener('click', function() {
+          showNotification(`${skill} coverage in department ${idx + 1}: ${val === 4 ? 'Strong' : val === 1 ? 'Critical gap' : 'Moderate'}`, 'info');
+        });
+        row.appendChild(cell);
+      });
+      grid.appendChild(row);
+    });
+  }
+
+  // Department interactions
+  document.querySelectorAll('.dept-row').forEach(row => {
+    row.addEventListener('click', function() {
+      const deptName = this.querySelector('[style*="width:140px"]')?.textContent;
+      const score = this.querySelector('[style*="text-align:right"]')?.textContent;
+      showNotification(`Department: ${deptName}. Viewing detailed analytics...`, 'info');
+    });
+  });
+
+  // Employee row interactions
+  document.querySelectorAll('.employee-row').forEach(row => {
+    row.addEventListener('click', function() {
+      const name = this.querySelector('[style*="font-weight:600"]')?.textContent;
+      showNotification(`Opening ${name}'s learning profile...`, 'info');
+    });
+  });
+
+  // Initiative card interactions
+  document.querySelectorAll('.initiative-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const title = this.querySelector('[style*="font-weight:700"]')?.textContent;
+      showNotification(`Viewing ${title} details...`, 'info');
+    });
+  });
+
+  // Button interactions
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      if (this.textContent.includes('Export')) {
+        showNotification('Generating report. This will download as PDF...', 'success');
+      } else if (this.textContent.includes('Assign')) {
+        showNotification('Opening assignment interface...', 'info');
+      } else if (this.textContent.includes('New Initiative')) {
+        showNotification('Creating new learning initiative...', 'info');
+      } else if (this.textContent.includes('View')) {
+        showNotification('Loading detailed view...', 'info');
+      }
+    });
+  });
+
+  // Initialize on load
+  window.addEventListener('load', async function() {
+    try {
+      initSkillDistChart();
+      initActivityChart();
+      initHeatmap();
+
+      if (API.requireAuth(['organization', 'admin'])) {
+        const user = API.getUser();
+        if (user) {
+          const orgTitle = document.querySelector('h1');
+          if (orgTitle) orgTitle.textContent = `${user.name} Organization`;
+        }
+        API.showToast('Logged in as verified Organization administrator.', 'success');
+      }
+    } catch (err) {
+      console.warn('Dashboard notice:', err);
+    }
+  });
+</script>
+<script src="api.js"></script>
+<script src="effects.js" defer></script>
+</body>
+</html>

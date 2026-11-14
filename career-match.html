@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Match — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <style>
+    .app-layout { display: flex; min-height: 100vh; }
+    .main-content { margin-left: 260px; flex: 1; padding: var(--space-8); background: var(--surface-0); }
+
+    .career-layout { display: grid; grid-template-columns: 1fr 380px; gap: var(--space-6); }
+
+    .filter-bar {
+      display: flex; align-items: center; gap: var(--space-3);
+      margin-bottom: var(--space-6); flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 7px 14px;
+      background: var(--surface-3);
+      border: var(--border-card);
+      border-radius: var(--radius-full);
+      font-size: 12px; font-weight: 600;
+      color: var(--gray-400);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-chip.active, .filter-chip:hover {
+      background: rgba(99,102,241,0.1);
+      border-color: rgba(99,102,241,0.3);
+      color: var(--brand-300);
+    }
+
+    .job-list { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    .job-card {
+      background: var(--surface-card);
+      border: var(--border-card);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+    }
+    .job-card:hover, .job-card.selected {
+      border-color: rgba(99,102,241,0.3);
+      background: rgba(99,102,241,0.04);
+      transform: translateX(2px);
+    }
+    .job-card.selected::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--grad-brand);
+      border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+    }
+
+    .job-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-4); }
+    .company-logo {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .match-ring {
+      position: relative; width: 56px; height: 56px; flex-shrink: 0;
+    }
+    .match-ring svg { transform: rotate(-90deg); }
+    .match-ring .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 3; }
+    .match-ring .ring-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .match-ring .ring-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; line-height: 1;
+    }
+
+    .skill-match-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-3); }
+    .skill-match {
+      padding: 2px 8px; border-radius: var(--radius-full); font-size: 10px; font-weight: 600;
+    }
+    .skill-have { background: rgba(16,185,129,0.1); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.2); }
+    .skill-need { background: rgba(244,63,94,0.1); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.2); }
+    .skill-partial { background: rgba(245,158,11,0.1); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); }
+
+    /* Job detail panel */
+    .detail-panel {
+      background: var(--surface-1);
+      border: var(--border-card);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-6);
+      position: sticky; top: var(--space-8);
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+    .detail-company-logo {
+      width: 64px; height: 64px; border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800;
+      margin-bottom: var(--space-4);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .req-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--gray-300); }
+    .req-item:last-child { border-bottom: none; }
+
+    .gap-analysis-bar { margin-bottom: 10px; }
+    .gab-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; color: var(--gray-400); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:14px">⚡</div>
+        <span class="logo-text" style="font-size:17px">SKILL<span>NEX</span></span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard-student.html"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a class="nav-item" href="skill-gap.html"><span class="nav-icon">📊</span>Skill Gap Analysis</a>
+      <a class="nav-item" href="roadmap.html"><span class="nav-icon">🗺️</span>My Roadmap</a>
+      <a class="nav-item active" href="career-match.html"><span class="nav-icon">🎯</span>Career Match</a>
+      <a class="nav-item" href="ai-mentor.html"><span class="nav-icon">💬</span>AI Mentor</a>
+      <div class="nav-section-label">Learning</div>
+      <a class="nav-item" href="#"><span class="nav-icon">📚</span>My Courses</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🏆</span>Achievements</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-6)">
+      <div>
+        <div class="badge badge-brand" style="margin-bottom:8px">AI Career Matching</div>
+        <h1 style="font-size:28px;font-weight:900;color:var(--gray-50);letter-spacing:-0.02em">Career Match</h1>
+        <p style="font-size:14px;color:var(--gray-500);margin-top:4px">18 roles matched to your skill profile · Updated in real-time</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="form-input" style="width:200px;display:flex;align-items:center;gap:8px">
+          <span>🔍</span>
+          <input style="background:transparent;border:none;outline:none;font-family:var(--font-sans);font-size:13px;color:var(--gray-100);width:100%" placeholder="Search roles...">
+        </div>
+        <button class="btn btn-primary">🔄 Refresh Matches</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <span style="font-size:12px;font-weight:700;color:var(--gray-500)">Filter:</span>
+      <div class="filter-chip active">All Roles (18)</div>
+      <div class="filter-chip">90%+ Match (4)</div>
+      <div class="filter-chip">Internship</div>
+      <div class="filter-chip">Full-time</div>
+      <div class="filter-chip">Remote</div>
+      <div class="filter-chip">Hybrid</div>
+      <div class="filter-chip" style="margin-left:auto">Sort: Best Match ▼</div>
+    </div>
+
+    <div class="career-layout">
+      <div class="job-list">
+        <!-- JOB 1 -->
+        <div class="job-card selected" onclick="selectJob(this, 0)">
+          <div class="job-header">
+            <div class="company-logo" style="background:rgba(66,133,244,0.1);color:#4285f4">G</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:var(--gray-50)">Machine Learning Intern</div>
+              <div style="font-size:13px;color:var(--gray-400)">Google · San Francisco, CA · Remote OK</div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+                <span style="font-size:12px;color:var(--accent-emerald)">$8,500/mo</span>
+                <span class="badge badge-green" style="font-size:10px">Summer 2027</span>
+                <span style="font-size:11px;color:var(--gray-600)">Posted 2d ago</span>
+              </div>
+            </div>
+            <div class="match-ring">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle class="ring-bg" cx="28" cy="28" r="22"/>
+                <circle class="ring-fill" cx="28" cy="28" r="22" stroke="#10b981" stroke-dasharray="138.2" stroke-dashoffset="11"></circle>
+              </svg>
+              <div class="ring-label"><span style="color:var(--accent-emerald)">92%</span><span style="font-size:8px;color:var(--gray-600)">match</span></div>
+            </div>
+          </div>
+          <div class="skill-match-tags">
+            <span class="skill-match skill-have">✓ Python</span>
+            <span class="skill-match skill-have">✓ ML Algorithms</span>
+            <span class="skill-match skill-have">✓ Statistics</span>
+            <span class="skill-match skill-partial">~ TensorFlow</span>
+            <span class="skill-match skill-need">✗ Kubernetes</span>
+          </div>
+        </div>
+
+        <!-- JOB 2 -->
+        <div class="job-card" onclick="selectJob(this, 1)">
+          <div class="job-header">
+            <div class="company-logo" style="background:rgba(0,120,212,0.1);color:#0078d4">M</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:var(--gray-50)">Data Science Intern</div>
+              <div style="font-size:13px;color:var(--gray-400)">Microsoft · Hyderabad, India · Hybrid</div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+                <span style="font-size:12px;color:var(--accent-emerald)">₹1.2L/mo</span>
+                <span class="badge badge-cyan" style="font-size:10px">Jan 2027</span>
+                <span style="font-size:11px;color:var(--gray-600)">Posted 3d ago</span>
+              </div>
+            </div>
+            <div class="match-ring">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle class="ring-bg" cx="28" cy="28" r="22"/>
+                <circle class="ring-fill" cx="28" cy="28" r="22" stroke="#06b6d4" stroke-dasharray="138.2" stroke-dashoffset="18"></circle>
+              </svg>
+              <div class="ring-label"><span style="color:var(--accent-cyan)">87%</span><span style="font-size:8px;color:var(--gray-600)">match</span></div>
+            </div>
+          </div>
+          <div class="skill-match-tags">
+            <span class="skill-match skill-have">✓ Python</span>
+            <span class="skill-match skill-have">✓ SQL</span>
+            <span class="skill-match skill-have">✓ Data Analysis</span>
+            <span class="skill-match skill-partial">~ Azure ML</span>
+            <span class="skill-match skill-need">✗ Power BI</span>
+          </div>
+        </div>
+
+        <!-- JOB 3 -->
+        <div class="job-card" onclick="selectJob(this, 2)">
+          <div class="job-header">
+            <div class="company-logo" style="background:rgba(255,153,0,0.1);color:#ff9900">A</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:var(--gray-50)">AI Research Intern</div>
+              <div style="font-size:13px;color:var(--gray-400)">Amazon · Bangalore, India · On-site</div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+                <span style="font-size:12px;color:var(--accent-emerald)">₹1.5L/mo</span>
+                <span class="badge badge-amber" style="font-size:10px">Jun 2027</span>
+                <span style="font-size:11px;color:var(--gray-600)">Posted 1w ago</span>
+              </div>
+            </div>
+            <div class="match-ring">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle class="ring-bg" cx="28" cy="28" r="22"/>
+                <circle class="ring-fill" cx="28" cy="28" r="22" stroke="#f59e0b" stroke-dasharray="138.2" stroke-dashoffset="25"></circle>
+              </svg>
+              <div class="ring-label"><span style="color:var(--accent-amber)">82%</span><span style="font-size:8px;color:var(--gray-600)">match</span></div>
+            </div>
+          </div>
+          <div class="skill-match-tags">
+            <span class="skill-match skill-have">✓ Python</span>
+            <span class="skill-match skill-have">✓ ML Theory</span>
+            <span class="skill-match skill-partial">~ PyTorch</span>
+            <span class="skill-match skill-need">✗ Research Papers</span>
+            <span class="skill-match skill-need">✗ AWS SageMaker</span>
+          </div>
+        </div>
+
+        <!-- JOB 4 -->
+        <div class="job-card" onclick="selectJob(this, 3)">
+          <div class="job-header">
+            <div class="company-logo" style="background:rgba(99,102,241,0.1);color:#6366f1">M</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:var(--gray-50)">ML Engineer — New Grad</div>
+              <div style="font-size:13px;color:var(--gray-400)">Meta · Mumbai, India · Hybrid</div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+                <span style="font-size:12px;color:var(--accent-emerald)">₹35L/yr</span>
+                <span class="badge badge-brand" style="font-size:10px">Full-time</span>
+                <span style="font-size:11px;color:var(--gray-600)">Posted 5d ago</span>
+              </div>
+            </div>
+            <div class="match-ring">
+              <svg width="56" height="56" viewBox="0 0 56 56">
+                <circle class="ring-bg" cx="28" cy="28" r="22"/>
+                <circle class="ring-fill" cx="28" cy="28" r="22" stroke="#6366f1" stroke-dasharray="138.2" stroke-dashoffset="41"></circle>
+              </svg>
+              <div class="ring-label"><span style="color:var(--brand-400)">70%</span><span style="font-size:8px;color:var(--gray-600)">match</span></div>
+            </div>
+          </div>
+          <div class="skill-match-tags">
+            <span class="skill-match skill-have">✓ Python</span>
+            <span class="skill-match skill-partial">~ PyTorch</span>
+            <span class="skill-match skill-need">✗ Production ML</span>
+            <span class="skill-match skill-need">✗ System Design</span>
+          </div>
+          <div style="margin-top:10px;padding:8px;background:rgba(99,102,241,0.06);border-radius:8px;border:1px solid rgba(99,102,241,0.15)">
+            <div style="font-size:11px;color:var(--brand-400)">📈 Complete Week 11-14 to unlock this role</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL PANEL -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-company-logo" style="background:rgba(66,133,244,0.1);color:#4285f4">G</div>
+        <div class="badge badge-green" style="margin-bottom:12px">92% Match — Excellent Fit</div>
+        <h2 style="font-size:20px;font-weight:800;color:var(--gray-50);margin-bottom:4px">Machine Learning Intern</h2>
+        <p style="font-size:14px;color:var(--gray-400);margin-bottom:16px">Google · San Francisco & Remote</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+          <div style="padding:10px;background:var(--surface-card);border:var(--border-card);border-radius:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:var(--gray-100)">$8,500</div>
+            <div style="font-size:10px;color:var(--gray-500)">per month</div>
+          </div>
+          <div style="padding:10px;background:var(--surface-card);border:var(--border-card);border-radius:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:var(--gray-100)">3 mo</div>
+            <div style="font-size:10px;color:var(--gray-500)">duration</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Skill Match Breakdown</div>
+          <div class="gap-analysis-bar"><div class="gab-label"><span>Python</span><span style="color:var(--accent-emerald)">72% / 80% required</span></div><div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div></div>
+          <div class="gap-analysis-bar"><div class="gab-label"><span>ML Algorithms</span><span style="color:var(--accent-emerald)">65% / 70% required</span></div><div class="progress-bar"><div class="progress-fill" style="width:65%;background:var(--grad-cyan)"></div></div></div>
+          <div class="gap-analysis-bar"><div class="gab-label"><span>TensorFlow</span><span style="color:var(--accent-amber)">35% / 60% required</span></div><div class="progress-bar"><div class="progress-fill" style="width:35%;background:linear-gradient(135deg,var(--accent-amber),#f97316)"></div></div></div>
+        </div>
+
+        <div style="margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Requirements</div>
+          <div class="req-item"><span class="skill-match skill-have">✓</span>Currently enrolled in CS/EE/Stats program</div>
+          <div class="req-item"><span class="skill-match skill-have">✓</span>Python proficiency (NumPy, Pandas, Scikit-learn)</div>
+          <div class="req-item"><span class="skill-match skill-have">✓</span>Basic ML algorithm understanding</div>
+          <div class="req-item"><span class="skill-match skill-partial">~</span>Experience with TensorFlow or PyTorch</div>
+          <div class="req-item"><span class="skill-match skill-need">✗</span>Containerization (Docker/Kubernetes)</div>
+        </div>
+
+        <div style="padding:12px;background:rgba(99,102,241,0.06);border:var(--border-brand);border-radius:12px;margin-bottom:20px">
+          <div style="font-size:11px;font-weight:700;color:var(--brand-400);margin-bottom:6px">🤖 AI Advice</div>
+          <p style="font-size:12px;color:var(--gray-300);line-height:1.6">You're only 1 TensorFlow module away from a 97% match. Add it to your roadmap and apply within 3 weeks for best timing.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-primary" style="justify-content:center">🚀 Apply Now</button>
+          <button class="btn btn-secondary" style="justify-content:center" onclick="window.location.href='roadmap.html'">📚 Close Skill Gap First</button>
+          <button class="btn btn-ghost" style="justify-content:center">🔖 Save for Later</button>
+        </div>
+
+        <div style="margin-top:16px;text-align:center;font-size:11px;color:var(--gray-600)">Deadline: Jan 15, 2027 · 60 days left</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="api.js"></script>
+<script>
+  let careerMatches = [];
+
+  async function loadCareerMatches() {
+    if (!API.requireAuth()) return;
+
+    try {
+      API.showToast('Fetching AI Career Recommendations...', 'info');
+      const res = await API.post('/ai/careers/match');
+      if (res.success && res.data && (res.data.recommendations || res.data.matchedRoles)) {
+        const matches = res.data.recommendations || res.data.matchedRoles;
+        careerMatches = matches;
+        renderJobCards(matches);
+        API.showToast('AI Career matches loaded successfully!', 'success');
+      }
+    } catch (err) {
+      console.warn('[Career Match Notice]', err.message);
+      API.showToast(err.message, 'warning');
+    }
+  }
+
+  function renderJobCards(matches) {
+    const jobsList = document.querySelector('.jobs-list');
+    if (!jobsList || !matches || matches.length === 0) return;
+
+    jobsList.innerHTML = '';
+    matches.forEach((job, idx) => {
+      const matchPct = job.matchPercentage || job.alignmentPercentage || 85;
+      const card = document.createElement('div');
+      card.className = `job-card ${idx === 0 ? 'selected' : ''}`;
+      card.onclick = () => selectJob(card, idx);
+
+      const ringColor = matchPct >= 90 ? '#10b981' : matchPct >= 75 ? '#f59e0b' : '#6366f1';
+
+      card.innerHTML = `
+        <div class="job-header">
+          <div class="company-logo" style="background:rgba(99,102,241,0.1);color:${ringColor}">
+            ${(job.roleTitle || job.role || 'J')[0]}
+          </div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:800;color:var(--gray-50)">${job.roleTitle || job.role}</div>
+            <div style="font-size:13px;color:var(--gray-400)">${job.companyType || 'AI Tech'} · Remote / Hybrid</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+              <span style="font-size:12px;color:var(--accent-emerald)">${job.estimatedCompensation || job.salaryRange || '$8,500/mo'}</span>
+              <span class="badge badge-green" style="font-size:10px">${job.readinessLevel || 'Recommended'}</span>
+            </div>
+          </div>
+          <div class="match-ring">
+            <svg width="56" height="56" viewBox="0 0 56 56">
+              <circle class="ring-bg" cx="28" cy="28" r="22"/>
+              <circle class="ring-fill" cx="28" cy="28" r="22" stroke="${ringColor}" stroke-dasharray="138.2" stroke-dashoffset="${138.2 - (138.2 * matchPct / 100)}"></circle>
+            </svg>
+            <div class="ring-label"><span style="color:${ringColor}">${matchPct}%</span><span style="font-size:8px;color:var(--gray-600)">match</span></div>
+          </div>
+        </div>
+        <div class="skill-match-tags">
+          ${(job.matchingSkills || job.keyMatchingSkills || []).map(s => `<span class="skill-match skill-have">✓ ${s}</span>`).join('')}
+          ${(job.missingSkills || job.missingSkillsToUnlock || []).map(s => `<span class="skill-match skill-need">✗ ${s}</span>`).join('')}
+        </div>
+      `;
+      jobsList.appendChild(card);
+    });
+
+    if (matches[0]) {
+      updateDetailPanel(matches[0]);
+    }
+  }
+
+  function selectJob(el, idx) {
+    document.querySelectorAll('.job-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    if (careerMatches[idx]) {
+      updateDetailPanel(careerMatches[idx]);
+    }
+  }
+
+  function updateDetailPanel(job) {
+    const panel = document.getElementById('detailPanel');
+    if (!panel) return;
+
+    const titleEl = panel.querySelector('h2');
+    if (titleEl) titleEl.textContent = job.roleTitle || job.role;
+
+    const badgeEl = panel.querySelector('.badge');
+    const matchPct = job.matchPercentage || job.alignmentPercentage || 85;
+    if (badgeEl) badgeEl.textContent = `${matchPct}% Match — ${matchPct >= 90 ? 'Excellent Fit' : 'Strong Fit'}`;
+
+    const adviceP = panel.querySelector('[style*="border:var(--border-brand)"] p');
+    if (adviceP) adviceP.textContent = job.advice || job.strategicOpportunity || 'Review core requirements and apply within recommended timeframe.';
+  }
+
+  window.addEventListener('DOMContentLoaded', loadCareerMatches);
+</script>
+<script src="effects.js" defer></script>
+</body>
+</html>

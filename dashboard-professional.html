@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Dashboard — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .app-layout { display: flex; min-height: 100vh; }
+    .main-content { margin-left: 260px; flex: 1; padding: var(--space-8); background: var(--surface-0); }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); margin-bottom: var(--space-8); }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    .content-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-5); }
+
+    .salary-card { background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(59,130,246,0.05)); border: 1px solid rgba(6,182,212,0.2); border-radius: var(--radius-2xl); padding: var(--space-8); position: relative; overflow-y: auto; }
+
+    .career-path-item {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      position: relative;
+    }
+    .career-path-item:hover { background: var(--surface-hover); }
+    .career-path-item + .career-path-item::before {
+      content: ''; position: absolute; top: -12px; left: 24px;
+      width: 2px; height: 12px; background: rgba(255,255,255,0.08);
+    }
+    .path-node {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+
+    .benchmark-row {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .benchmark-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:14px">⚡</div>
+        <span class="logo-text" style="font-size:17px">SKILL<span>NEX</span></span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="dashboard-professional.html"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a class="nav-item" href="skill-gap.html"><span class="nav-icon">📊</span>Skill Gap Analysis</a>
+      <a class="nav-item" href="roadmap.html"><span class="nav-icon">🗺️</span>Career Roadmap</a>
+      <a class="nav-item" href="career-match.html"><span class="nav-icon">🎯</span>Job Matching</a>
+      <a class="nav-item" href="ai-mentor.html"><span class="nav-icon">💬</span>Executive Coach AI</a>
+      <div class="nav-section-label">Career</div>
+      <a class="nav-item" href="#"><span class="nav-icon">📈</span>Salary Insights</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🏆</span>Certifications</a>
+      <a class="nav-item" href="#"><span class="nav-icon">💡</span>Industry Trends</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="#"><span class="nav-icon">👤</span>Profile</a>
+      <a class="nav-item" href="login.html" onclick="API.logout(); return false;"><span class="nav-icon">🚪</span>Sign Out</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-8)">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <h1 style="font-size:22px;font-weight:800;color:var(--gray-50);letter-spacing:-0.02em">Welcome back, Priya 👋</h1>
+          <span class="badge badge-cyan">Pro Member</span>
+        </div>
+        <p style="font-size:13px;color:var(--gray-500)">Senior Software Engineer → AI/ML Transition · On track for Q2 2027</p>
+      </div>
+      <div style="display:flex;gap:12px">
+        <a href="ai-mentor.html" class="btn btn-primary">💬 Executive Coach</a>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card animate-fadeInUp" style="border-color:rgba(6,182,212,0.15);background:linear-gradient(145deg,rgba(6,182,212,0.06),rgba(59,130,246,0.03))">
+        <div class="stat-icon" style="background:rgba(6,182,212,0.12)">📈</div>
+        <div class="stat-value text-gradient-cyan">82%</div>
+        <div class="stat-label">Career Readiness</div>
+        <div class="stat-change up">↑ +12% this quarter</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-100">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.12)">💰</div>
+        <div class="stat-value" style="color:var(--accent-emerald)">+42%</div>
+        <div class="stat-label">Potential Salary Increase</div>
+        <div class="stat-change up">If gap closed</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-200">
+        <div class="stat-icon" style="background:rgba(99,102,241,0.12)">🎯</div>
+        <div class="stat-value text-gradient">31</div>
+        <div class="stat-label">Job Matches</div>
+        <div class="stat-change up">↑ 8 new this week</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-300">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.12)">🏆</div>
+        <div class="stat-value" style="color:var(--accent-amber)">7</div>
+        <div class="stat-label">Certs Completed</div>
+        <div class="stat-change" style="color:var(--gray-500)">2 in progress</div>
+      </div>
+    </div>
+
+    <!-- SALARY + CAREER PATH -->
+    <div class="content-grid">
+      <!-- Salary Impact -->
+      <div class="salary-card animate-fadeInUp">
+        <div class="glow-orb glow-orb-cyan" style="width:300px;height:300px;top:-100px;right:-100px;"></div>
+        <div style="position:relative;z-index:1">
+          <div class="badge badge-cyan" style="margin-bottom:16px">AI Salary Intelligence</div>
+          <h3 style="font-size:18px;font-weight:800;color:var(--gray-50);margin-bottom:4px">Your Salary Potential</h3>
+          <p style="font-size:13px;color:var(--gray-400);margin-bottom:24px">Based on your skill trajectory & market data</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
+            <div style="text-align:center">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-500);margin-bottom:4px">Current</div>
+              <div style="font-size:24px;font-weight:900;color:var(--gray-100)">₹22L</div>
+              <div style="font-size:11px;color:var(--gray-600)">Sr. SWE</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:28px;color:var(--accent-emerald);line-height:1">→</div>
+              <div style="font-size:11px;color:var(--accent-emerald);margin-top:4px">+42%</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-500);margin-bottom:4px">Target</div>
+              <div style="font-size:24px;font-weight:900;color:var(--accent-emerald)">₹31L</div>
+              <div style="font-size:11px;color:var(--gray-600)">ML Engineer</div>
+            </div>
+          </div>
+          <div style="height:120px;position:relative">
+            <canvas id="salaryChart"></canvas>
+          </div>
+          <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px">
+            <div style="font-size:12px;color:var(--gray-400)">🎯 Close your top 3 skill gaps → unlock ₹31L+ roles within 6 months</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Career Trajectory -->
+      <div class="card animate-fadeInUp delay-100">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Career Trajectory</h3>
+          <span class="badge badge-brand">AI Projected</span>
+        </div>
+        <div>
+          <div class="career-path-item">
+            <div class="path-node" style="background:rgba(16,185,129,0.12);border:2px solid var(--accent-emerald)">✓</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--gray-100)">Senior Software Engineer</div>
+              <div style="font-size:12px;color:var(--accent-emerald)">Current · ₹22L · 4 yrs experience</div>
+            </div>
+          </div>
+          <div class="career-path-item">
+            <div class="path-node" style="background:rgba(99,102,241,0.12);border:2px solid var(--brand-500);animation:pulse-glow 2s infinite">▶</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--gray-100)">ML Engineer</div>
+              <div style="font-size:12px;color:var(--brand-400)">In Progress · ₹28–32L · ~6 months</div>
+              <div class="progress-bar" style="margin-top:6px;width:200px"><div class="progress-fill" style="width:62%"></div></div>
+            </div>
+          </div>
+          <div class="career-path-item" style="opacity:0.6">
+            <div class="path-node" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.1)">🔒</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-400)">Senior ML Engineer</div>
+              <div style="font-size:12px;color:var(--gray-600)">Year 2 · ₹40–55L</div>
+            </div>
+          </div>
+          <div class="career-path-item" style="opacity:0.4">
+            <div class="path-node" style="background:rgba(255,255,255,0.03);border:2px solid rgba(255,255,255,0.08)">🔒</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-400)">ML Principal / Lead</div>
+              <div style="font-size:12px;color:var(--gray-600)">Year 4+ · ₹70L+</div>
+            </div>
+          </div>
+        </div>
+        <a href="roadmap.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">View Detailed Roadmap →</a>
+      </div>
+    </div>
+
+    <!-- BENCHMARKS + SKILLS TO LEARN -->
+    <div class="content-grid">
+      <!-- Peer Benchmarking -->
+      <div class="card animate-fadeInUp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">LinkedIn Peer Benchmark</h3>
+            <p style="font-size:12px;color:var(--gray-500)">vs. 500 ML Engineers with similar background</p>
+          </div>
+          <span class="badge badge-cyan">Top 23%</span>
+        </div>
+        <div>
+          <div class="benchmark-row">
+            <div style="width:120px;font-size:12px;color:var(--gray-400);flex-shrink:0">Python</div>
+            <div style="flex:1;position:relative">
+              <div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--grad-brand)"></div></div>
+              <div style="position:absolute;top:-16px;left:72%;font-size:9px;color:var(--brand-400);transform:translateX(-50%)">You 72%</div>
+            </div>
+            <div style="width:60px;text-align:right;font-size:11px;color:var(--gray-500)">Avg: 68%</div>
+          </div>
+          <div class="benchmark-row">
+            <div style="width:120px;font-size:12px;color:var(--gray-400);flex-shrink:0">System Design</div>
+            <div style="flex:1;position:relative">
+              <div class="progress-bar"><div class="progress-fill" style="width:85%;background:var(--grad-cyan)"></div></div>
+            </div>
+            <div style="width:60px;text-align:right;font-size:11px;color:var(--accent-emerald)">↑ Avg: 60%</div>
+          </div>
+          <div class="benchmark-row">
+            <div style="width:120px;font-size:12px;color:var(--gray-400);flex-shrink:0">ML Theory</div>
+            <div style="flex:1">
+              <div class="progress-bar"><div class="progress-fill" style="width:55%;background:linear-gradient(135deg,var(--accent-amber),#f97316)"></div></div>
+            </div>
+            <div style="width:60px;text-align:right;font-size:11px;color:var(--accent-amber)">↓ Avg: 72%</div>
+          </div>
+          <div class="benchmark-row">
+            <div style="width:120px;font-size:12px;color:var(--gray-400);flex-shrink:0">Cloud/MLOps</div>
+            <div style="flex:1">
+              <div class="progress-bar"><div class="progress-fill" style="width:30%;background:linear-gradient(135deg,var(--accent-rose),var(--accent-pink))"></div></div>
+            </div>
+            <div style="width:60px;text-align:right;font-size:11px;color:var(--accent-rose)">↓ Avg: 65%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- High-ROI Skills -->
+      <div class="card animate-fadeInUp delay-100">
+        <div style="margin-bottom:var(--space-5)">
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">High-ROI Skills to Learn Now</h3>
+          <p style="font-size:12px;color:var(--gray-500)">Ranked by salary impact × speed to learn</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="padding:12px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <div style="font-size:14px;font-weight:700;color:var(--gray-100)">AWS SageMaker</div>
+              <span style="font-size:12px;font-weight:800;color:var(--accent-emerald)">+₹8L salary</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-400)">⚡ 3 weeks · Cloud ML Platform</div>
+          </div>
+          <div style="padding:12px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <div style="font-size:14px;font-weight:700;color:var(--gray-100)">PyTorch Advanced</div>
+              <span style="font-size:12px;font-weight:800;color:var(--brand-400)">+₹6L salary</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-400)">⚡ 4 weeks · Deep Learning</div>
+          </div>
+          <div style="padding:12px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.15);border-radius:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <div style="font-size:14px;font-weight:700;color:var(--gray-100)">MLOps & Kubernetes</div>
+              <span style="font-size:12px;font-weight:800;color:var(--accent-cyan)">+₹5L salary</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-400)">⚡ 5 weeks · Production ML</div>
+          </div>
+        </div>
+        <a href="roadmap.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">Add All to Roadmap →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Notification system
+  function showNotification(message, type = 'info') {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: ${type === 'error' ? 'rgba(239,68,68,0.9)' : type === 'success' ? 'rgba(16,185,129,0.9)' : 'rgba(99,102,241,0.9)'};
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      border: 1px solid ${type === 'error' ? 'rgba(239,68,68,0.3)' : type === 'success' ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'};
+      animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+      notif.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => notif.remove(), 300);
+    }, 3500);
+  }
+
+  // Add animation styles
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Initialize salary chart
+  function initSalaryChart() {
+    const ctx = document.getElementById('salaryChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Now', '+3mo', '+6mo', '+9mo', '+12mo', '+18mo'],
+        datasets: [{
+          label: 'Projected Salary (₹L)',
+          data: [22, 24, 28, 31, 36, 42],
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6,182,212,0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#06b6d4',
+          pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#475569', font: { size: 10 }, callback: v => '₹'+v+'L' } }
+        }
+      }
+    });
+  }
+
+  // Career path interactions
+  document.querySelectorAll('.career-path-item').forEach((item, index) => {
+    if (!item.style.opacity || parseFloat(item.style.opacity) >= 1) {
+      item.addEventListener('click', function() {
+        const title = this.querySelector('[style*="font-weight:700"]')?.textContent;
+        showNotification(`${title}: View detailed requirements →`, 'info');
+      });
+    }
+  });
+
+  // High-ROI skill interactions
+  document.querySelectorAll('[style*="rgba(16,185,129,0.06)"], [style*="rgba(99,102,241,0.06)"], [style*="rgba(6,182,212,0.06)"]').forEach(skill => {
+    skill.style.cursor = 'pointer';
+    skill.style.transition = 'all 0.3s ease';
+    skill.addEventListener('mouseenter', function() {
+      this.style.background = 'rgba(99,102,241,0.1)';
+      this.style.borderColor = 'rgba(99,102,241,0.3)';
+    });
+    skill.addEventListener('mouseleave', function() {
+      if (this.textContent.includes('AWS')) {
+        this.style.background = 'rgba(16,185,129,0.06)';
+        this.style.borderColor = 'rgba(16,185,129,0.15)';
+      } else if (this.textContent.includes('PyTorch')) {
+        this.style.background = 'rgba(99,102,241,0.06)';
+        this.style.borderColor = 'rgba(99,102,241,0.15)';
+      } else {
+        this.style.background = 'rgba(6,182,212,0.06)';
+        this.style.borderColor = 'rgba(6,182,212,0.15)';
+      }
+    });
+    skill.addEventListener('click', function() {
+      const skillName = this.querySelector('[style*="font-weight:700"]')?.textContent;
+      showNotification(`Adding ${skillName} to your learning path...`, 'success');
+    });
+  });
+
+  // Button interactions
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      if (this.textContent.includes('Roadmap')) {
+        showNotification('Opening your personalized ML Engineer roadmap...', 'info');
+      } else if (this.textContent.includes('Coach')) {
+        showNotification('Starting your executive coaching session...', 'info');
+      } else if (this.textContent.includes('Add All')) {
+        showNotification('Added 3 high-ROI skills to your learning plan', 'success');
+      }
+    });
+  });
+
+  // Initialize on load
+  window.addEventListener('load', async function() {
+    try {
+      initSalaryChart();
+      if (API.requireAuth(['professional', 'admin'])) {
+        const user = API.getUser();
+        if (user) {
+          const h1 = document.querySelector('h1');
+          if (h1) h1.textContent = `Welcome back, ${user.name.split(' ')[0]} 👋`;
+        }
+        
+        try {
+          const analytics = await API.get('/analytics/dashboard');
+          if (analytics.success && analytics.data) {
+            const statVals = document.querySelectorAll('.stat-value');
+            if (statVals[0]) statVals[0].textContent = `${analytics.data.metrics.overallPercentage}%`;
+          }
+        } catch (analyticsErr) {
+          // Analytics failure should NOT log out the user
+          console.warn('[Analytics Notice]', analyticsErr.message);
+        }
+      }
+    } catch (err) {
+      console.warn('[Professional Dashboard Sync]', err.message);
+    }
+  });
+</script>
+<script src="api.js"></script>
+<script src="effects.js" defer></script>
+</body>
+</html>
+

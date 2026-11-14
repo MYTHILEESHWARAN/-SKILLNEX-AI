@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .app-layout { display: flex; min-height: 100vh; }
+    .main-content { margin-left: 260px; flex: 1; padding: var(--space-8); background: var(--surface-0); }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-8); }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); margin-bottom: var(--space-8); }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-6); }
+    .content-grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-6); }
+
+    .skill-radar-wrap { 
+      position: relative; 
+      height: 280px;
+      perspective: 1200px;
+    }
+    .radar-canvas { 
+      width: 100% !important; 
+      height: 100% !important;
+      transition: transform var(--transition-base);
+    }
+    
+    .card:hover .radar-canvas {
+      transform: rotateX(5deg) rotateY(-5deg) scale(1.02);
+    }
+
+    .roadmap-timeline { display: flex; flex-direction: column; gap: var(--space-4); }
+    .timeline-item {
+      display: flex; align-items: flex-start; gap: var(--space-4);
+      padding: var(--space-4);
+      background: rgba(255,255,255,0.02);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .timeline-item:hover { background: var(--surface-hover); border-color: rgba(255,255,255,0.1); }
+    .timeline-dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0; margin-top: 2px;
+    }
+    .timeline-dot.done  { background: rgba(16,185,129,0.15); border: 2px solid var(--accent-emerald); }
+    .timeline-dot.active{ background: rgba(99,102,241,0.15); border: 2px solid var(--brand-500); animation: pulse-glow 2s infinite; }
+    .timeline-dot.todo  { background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.1); }
+
+    .course-card {
+      display: flex; align-items: center; gap: var(--space-4);
+      padding: var(--space-4);
+      background: rgba(255,255,255,0.02);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .course-card:hover { background: var(--surface-hover); transform: translateX(2px); }
+    .course-thumb { width: 52px; height: 52px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+
+    .streak-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .streak-day { width: 100%; aspect-ratio: 1; border-radius: 4px; background: rgba(255,255,255,0.05); }
+    .streak-day.active { background: var(--brand-500); }
+    .streak-day.today  { background: var(--accent-emerald); box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+
+    .job-card {
+      padding: var(--space-4);
+      background: rgba(255,255,255,0.02);
+      border: var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+      cursor: pointer;
+    }
+    .job-card:hover { background: var(--surface-hover); border-color: rgba(99,102,241,0.2); }
+
+    .topbar-user { display: flex; align-items: center; gap: var(--space-3); }
+    .notification-bell {
+      width: 36px; height: 36px; border-radius: var(--radius-md);
+      background: var(--surface-3); border: var(--border-card);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; position: relative;
+    }
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--accent-rose); border-radius: 50%; border: 2px solid var(--surface-1); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:14px">⚡</div>
+        <span class="logo-text" style="font-size:17px">SKILL<span>NEX</span></span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="dashboard-student.html"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a class="nav-item" href="skill-gap.html"><span class="nav-icon">📊</span>Skill Gap Analysis</a>
+      <a class="nav-item" href="roadmap.html"><span class="nav-icon">🗺️</span>My Roadmap</a>
+      <a class="nav-item" href="career-match.html"><span class="nav-icon">🎯</span>Career Match</a>
+      <a class="nav-item" href="ai-mentor.html"><span class="nav-icon">💬</span>AI Mentor <span class="badge badge-brand" style="margin-left:auto;font-size:9px">AI</span></a>
+      <div class="nav-section-label">Learning</div>
+      <a class="nav-item" href="#"><span class="nav-icon">📚</span>My Courses</a>
+      <a class="nav-item" href="#"><span class="nav-icon">🏆</span>Achievements</a>
+      <a class="nav-item" href="#"><span class="nav-icon">📝</span>Practice Tests</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="#"><span class="nav-icon">👤</span>Profile</a>
+      <a class="nav-item" href="#"><span class="nav-icon">⚙️</span>Settings</a>
+      <a class="nav-item" href="login.html" onclick="API.logout(); return false;"><span class="nav-icon">🚪</span>Sign Out</a>
+    </nav>
+    <div style="padding:var(--space-4);margin:var(--space-4)">
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(168,85,247,0.08));border:var(--border-brand);border-radius:var(--radius-lg);padding:var(--space-4)">
+        <div style="font-size:12px;font-weight:700;color:var(--brand-400);margin-bottom:6px">🚀 Upgrade to Pro</div>
+        <div style="font-size:11px;color:var(--gray-400);line-height:1.5;margin-bottom:10px">Unlock unlimited AI mentor & career matching</div>
+        <a href="#" class="btn btn-primary" style="width:100%;justify-content:center;padding:8px 12px;font-size:12px">Upgrade Now</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar" style="background:transparent;border:none;padding:0;margin-bottom:var(--space-8);position:static">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;color:var(--gray-50);letter-spacing:-0.02em">Good morning, Alex 👋</h1>
+        <p style="font-size:13px;color:var(--gray-500)">Saturday, Nov 14 · You have 2 pending tasks today</p>
+      </div>
+      <div class="topbar-user">
+        <div class="notification-bell">🔔<div class="notif-dot"></div></div>
+        <button class="btn btn-secondary btn-sm" onclick="runAgenticAudit()" title="Run 5-Agent Orchestrated Audit">⚡ AI Agentic Audit</button>
+        <a href="ai-mentor.html" class="btn btn-primary btn-sm">💬 Ask AI Mentor</a>
+        <div class="avatar avatar-md" style="background:var(--grad-brand)">AK</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card animate-fadeInUp">
+        <div class="stat-icon" style="background:rgba(99,102,241,0.12)">⚡</div>
+        <div class="stat-value text-gradient">73%</div>
+        <div class="stat-label">Overall Skill Score</div>
+        <div class="stat-change up">↑ +8% this month</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-100">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.12)">🔥</div>
+        <div class="stat-value" style="color:var(--accent-amber)">12</div>
+        <div class="stat-label">Day Streak</div>
+        <div class="stat-change up">↑ Personal best!</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-200">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.12)">📚</div>
+        <div class="stat-value" style="color:var(--accent-emerald)">4</div>
+        <div class="stat-label">Active Courses</div>
+        <div class="stat-change up">1 completing soon</div>
+      </div>
+      <div class="stat-card animate-fadeInUp delay-300">
+        <div class="stat-icon" style="background:rgba(236,72,153,0.12)">🎯</div>
+        <div class="stat-value" style="color:var(--accent-pink)">18</div>
+        <div class="stat-label">Job Matches</div>
+        <div class="stat-change up">↑ 6 new today</div>
+      </div>
+    </div>
+
+    <!-- SKILL GAP + ROADMAP -->
+    <div class="content-grid">
+      <!-- Skill Radar -->
+      <div class="card animate-fadeInUp delay-100">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Skill Radar</h3>
+            <p style="font-size:12px;color:var(--gray-500)">vs. ML Engineer benchmark</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-500)"><span style="width:10px;height:10px;border-radius:50%;background:rgba(99,102,241,0.6);display:inline-block"></span>You</span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-500)"><span style="width:10px;height:10px;border-radius:50%;background:rgba(6,182,212,0.4);display:inline-block"></span>Target</span>
+          </div>
+        </div>
+        <div class="skill-radar-wrap">
+          <canvas id="radarChart" class="radar-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Active Roadmap -->
+      <div class="card animate-fadeInUp delay-200">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Learning Roadmap</h3>
+            <p style="font-size:12px;color:var(--gray-500)">ML Engineer Path · 73% complete</p>
+          </div>
+          <a href="roadmap.html" class="btn btn-ghost btn-sm">View All</a>
+        </div>
+        <div class="roadmap-timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-200)">Python Fundamentals</div>
+              <div style="font-size:12px;color:var(--accent-emerald)">✓ Completed · 3 weeks ago</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-200)">Data Analysis with Pandas</div>
+              <div style="font-size:12px;color:var(--accent-emerald)">✓ Completed · 1 week ago</div>
+            </div>
+          </div>
+          <div class="timeline-item" style="border-color:rgba(99,102,241,0.2);background:rgba(99,102,241,0.04)">
+            <div class="timeline-dot active">▶</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--gray-100)">ML Fundamentals with Scikit-learn</div>
+              <div style="font-size:12px;color:var(--brand-400)">In Progress · Lesson 7/24</div>
+              <div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:29%"></div></div>
+            </div>
+          </div>
+          <div class="timeline-item" style="opacity:0.6">
+            <div class="timeline-dot todo">4</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-400)">Deep Learning with PyTorch</div>
+              <div style="font-size:12px;color:var(--gray-600)">Locked · Unlocks after current</div>
+            </div>
+          </div>
+          <div class="timeline-item" style="opacity:0.4">
+            <div class="timeline-dot todo">5</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-400)">Cloud Deployment (AWS)</div>
+              <div style="font-size:12px;color:var(--gray-600)">Upcoming</div>
+            </div>
+          </div>
+        </div>
+        <a href="roadmap.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">Continue Learning →</a>
+      </div>
+    </div>
+
+    <!-- COURSES + ACTIVITY -->
+    <div class="content-grid" style="margin-bottom:var(--space-6)">
+      <!-- Active Courses -->
+      <div class="card animate-fadeInUp">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Active Courses</h3>
+          <a href="#" class="btn btn-ghost btn-sm">Browse More</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="course-card">
+            <div class="course-thumb" style="background:rgba(99,102,241,0.12)">🤖</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--gray-100)">ML Fundamentals</div>
+              <div style="font-size:12px;color:var(--gray-500)">Coursera · Andrew Ng</div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:29%"></div></div>
+            </div>
+            <span class="badge badge-brand" style="font-size:10px">29%</span>
+          </div>
+          <div class="course-card">
+            <div class="course-thumb" style="background:rgba(6,182,212,0.12)">🐍</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--gray-100)">Advanced Python</div>
+              <div style="font-size:12px;color:var(--gray-500)">Udemy · Jose Portilla</div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:62%;background:var(--grad-cyan)"></div></div>
+            </div>
+            <span class="badge badge-cyan" style="font-size:10px">62%</span>
+          </div>
+          <div class="course-card">
+            <div class="course-thumb" style="background:rgba(16,185,129,0.12)">📊</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--gray-100)">Statistics for DS</div>
+              <div style="font-size:12px;color:var(--gray-500)">edX · MIT OpenCourseWare</div>
+              <div class="progress-bar" style="margin-top:6px"><div class="progress-fill" style="width:85%;background:var(--grad-green)"></div></div>
+            </div>
+            <span class="badge badge-green" style="font-size:10px">85%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity + Streak -->
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+        <div class="card animate-fadeInUp delay-100">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)">
+            <h3 style="font-size:15px;font-weight:700;color:var(--gray-100)">Learning Streak 🔥</h3>
+            <span style="font-size:22px;font-weight:900;color:var(--accent-amber)">12</span>
+          </div>
+          <div class="streak-cal" id="streakCal"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px">
+            <span style="font-size:11px;color:var(--gray-600)">3 weeks ago</span>
+            <span style="font-size:11px;color:var(--gray-600)">Today</span>
+          </div>
+        </div>
+        <div class="card animate-fadeInUp delay-200">
+          <h3 style="font-size:15px;font-weight:700;color:var(--gray-100);margin-bottom:var(--space-4)">Weekly Goal</h3>
+          <div style="text-align:center;margin-bottom:12px">
+            <div style="font-size:36px;font-weight:900;color:var(--gray-50)">8.5<span style="font-size:14px;color:var(--gray-500)">/10 hrs</span></div>
+            <div style="font-size:12px;color:var(--accent-emerald)">🎯 On track this week</div>
+          </div>
+          <div class="progress-bar" style="height:10px"><div class="progress-fill" style="width:85%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOB MATCHES -->
+    <div class="card animate-fadeInUp">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)">
+        <div>
+          <h3 style="font-size:16px;font-weight:700;color:var(--gray-100)">Top Job Matches</h3>
+          <p style="font-size:12px;color:var(--gray-500)">AI-matched based on your skill trajectory</p>
+        </div>
+        <a href="career-match.html" class="btn btn-outline btn-sm">View All 18 →</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div class="job-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:36px;height:36px;background:rgba(99,102,241,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">G</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gray-100)">ML Intern</div>
+              <div style="font-size:11px;color:var(--gray-500)">Google · Remote</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="badge badge-green">92% match</span>
+            <span style="font-size:11px;color:var(--gray-600)">2d ago</span>
+          </div>
+        </div>
+        <div class="job-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:36px;height:36px;background:rgba(6,182,212,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">M</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gray-100)">Data Science Intern</div>
+              <div style="font-size:11px;color:var(--gray-500)">Microsoft · Hybrid</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="badge badge-cyan">87% match</span>
+            <span style="font-size:11px;color:var(--gray-600)">3d ago</span>
+          </div>
+        </div>
+        <div class="job-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div style="width:36px;height:36px;background:rgba(245,158,11,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px">A</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--gray-100)">AI Research Intern</div>
+              <div style="font-size:11px;color:var(--gray-500)">Amazon · On-site</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="badge badge-amber">81% match</span>
+            <span style="font-size:11px;color:var(--gray-600)">1w ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Error notification system
+  function showNotification(message, type = 'info') {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background: ${type === 'error' ? 'rgba(239,68,68,0.9)' : type === 'success' ? 'rgba(16,185,129,0.9)' : 'rgba(99,102,241,0.9)'};
+      color: white;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      border: 1px solid ${type === 'error' ? 'rgba(239,68,68,0.3)' : type === 'success' ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'};
+      animation: slideIn 0.3s ease-out;
+    `;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+      notif.style.animation = 'slideOut 0.3s ease-out';
+      setTimeout(() => notif.remove(), 300);
+    }, 3000);
+  }
+
+  // Add animation styles
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(400px); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Radar Chart
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  let radarChart = null;
+
+  function initializeRadarChart() {
+    if (radarChart) radarChart.destroy();
+    
+    radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['Python', 'ML Theory', 'Data Analysis', 'Statistics', 'Cloud', 'Communication'],
+        datasets: [
+          {
+            label: 'You',
+            data: [72, 65, 78, 70, 38, 60],
+            backgroundColor: 'rgba(99,102,241,0.15)',
+            borderColor: 'rgba(99,102,241,0.8)',
+            borderWidth: 2,
+            pointBackgroundColor: '#6366f1',
+            pointRadius: 4,
+          },
+          {
+            label: 'Target (ML Engineer)',
+            data: [90, 85, 85, 80, 75, 70],
+            backgroundColor: 'rgba(6,182,212,0.08)',
+            borderColor: 'rgba(6,182,212,0.5)',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            pointBackgroundColor: '#06b6d4',
+            pointRadius: 3,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          r: {
+            min: 0, max: 100,
+            ticks: { display: false, stepSize: 20 },
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            angleLines: { color: 'rgba(255,255,255,0.06)' },
+            pointLabels: { color: '#94a3b8', font: { size: 11, family: 'Plus Jakarta Sans' } }
+          }
+        }
+      }
+    });
+  }
+
+  // Streak calendar
+  function initializeStreakCalendar() {
+    const cal = document.getElementById('streakCal');
+    const active = [3,4,5,6,7,9,10,12,13,15,17,18,19,20];
+    for (let i = 0; i < 21; i++) {
+      const d = document.createElement('div');
+      d.className = 'streak-day' + (i === 20 ? ' today' : (active.includes(i) ? ' active' : ''));
+      d.title = `Day ${i+1}`;
+      cal.appendChild(d);
+    }
+  }
+
+  // Notification bell interaction
+  document.querySelector('.notification-bell')?.addEventListener('click', function() {
+    showNotification('You have 2 pending tasks and 1 new job match', 'info');
+  });
+
+  // Course card interactions with loading state
+  document.querySelectorAll('.course-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const courseName = this.querySelector('[style*="font-weight:600"]').textContent;
+      showNotification(`Opening ${courseName}...`, 'info');
+    });
+  });
+
+  // Job card interactions
+  document.querySelectorAll('.job-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const jobTitle = this.querySelector('[style*="font-weight:700"]').textContent;
+      const company = this.querySelector('[style*="color: var(--gray-500)"]').textContent;
+      showNotification(`Viewing: ${jobTitle} at ${company}`, 'info');
+    });
+  });
+
+  // Timeline item interactions
+  document.querySelectorAll('.timeline-item').forEach(item => {
+    if (!item.style.opacity || parseFloat(item.style.opacity) >= 1) {
+      item.addEventListener('click', function() {
+        if (!this.classList.contains('locked')) {
+          const title = this.querySelector('[style*="font-weight:600"]').textContent;
+          showNotification(`Opening: ${title}`, 'info');
+        }
+      });
+    }
+  });
+
+<script src="api.js"></script>
+<script>
+  // Real Backend Data Sync
+  async function syncDashboardData() {
+    if (!API.requireAuth(['student', 'admin'])) return;
+
+    const user = API.getUser();
+    if (user) {
+      // Update User Name and Avatar Initials
+      const greetingEl = document.querySelector('.topbar h1');
+      if (greetingEl) greetingEl.textContent = `Good morning, ${user.name.split(' ')[0]} 👋`;
+
+      const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      document.querySelectorAll('.avatar-md, .avatar-sm').forEach(av => av.textContent = initials);
+    }
+
+    try {
+      // 1. Fetch real analytics from backend
+      try {
+        const analytics = await API.get('/analytics/dashboard');
+        if (analytics.success && analytics.data) {
+          const m = analytics.data.metrics;
+          
+          // Stat 1: Overall percentage
+          const statVals = document.querySelectorAll('.stat-value');
+          if (statVals[0]) statVals[0].textContent = `${m.overallPercentage}%`;
+          // Stat 2: Streak
+          if (statVals[1]) statVals[1].textContent = m.streak ? m.streak.current : 0;
+          // Stat 3: Completed modules
+          if (statVals[2]) statVals[2].textContent = m.completedModulesCount || 0;
+
+          // Render real adaptive alerts if present
+          if (analytics.data.adaptiveAlerts && analytics.data.adaptiveAlerts.length > 0) {
+            const alert = analytics.data.adaptiveAlerts[0];
+            API.showToast(`Adaptive Alert: ${alert.message}`, 'warning');
+          }
+        }
+      } catch (analyticsErr) {
+        // Analytics failure should NOT log out the user
+        console.warn('[Analytics Notice]', analyticsErr.message);
+        // Continue loading other dashboard components
+      }
+
+      // 2. Fetch active roadmap from backend
+      try {
+        const roadmaps = await API.get('/ai/roadmap');
+        if (roadmaps.success && roadmaps.data && roadmaps.data.length > 0) {
+          const activeRoadmap = roadmaps.data[0];
+          const timelineWrap = document.querySelector('.roadmap-timeline');
+          if (timelineWrap && activeRoadmap.phases && activeRoadmap.phases.length > 0) {
+            timelineWrap.innerHTML = '';
+            activeRoadmap.phases.forEach((phase, pIdx) => {
+              const phaseDiv = document.createElement('div');
+              phaseDiv.className = 'timeline-item';
+              const isDone = phase.status === 'completed';
+              phaseDiv.innerHTML = `
+                <div class="timeline-dot ${isDone ? 'done' : 'active'}">${isDone ? '✓' : '▶'}</div>
+                <div style="flex:1">
+                  <div style="font-size:14px;font-weight:600;color:var(--gray-200)">Phase ${phase.phaseNumber}: ${phase.title}</div>
+                  <div style="font-size:12px;color:${isDone ? 'var(--accent-emerald)' : 'var(--brand-400)'}">
+                    ${isDone ? '✓ Completed' : 'In Progress'} · ${phase.weeks ? phase.weeks.length : 0} Weeks
+                  </div>
+                </div>
+              `;
+              timelineWrap.appendChild(phaseDiv);
+            });
+          }
+        }
+      } catch (roadmapErr) {
+        // Roadmap failure should NOT log out the user
+        console.warn('[Roadmap Notice]', roadmapErr.message);
+        // Continue loading other dashboard components
+      }
+    } catch (err) {
+      // General catch-all - should also not log out
+      console.warn('[Dashboard Data Sync Notice]', err.message);
+    }
+  }
+
+  // Trigger Agentic Multi-Agent Orchestration
+  window.runAgenticAudit = async function() {
+    API.showToast('🤖 Launching 5-Agent Orchestrator pipeline...', 'info');
+    try {
+      const res = await API.post('/orchestration/run');
+      if (res.success && res.data) {
+        API.showToast(`✅ Agentic Intelligence Report Generated! Readiness Score: ${res.data.summary.readinessScore}%`, 'success');
+        // Refresh dashboard data
+        syncDashboardData();
+      }
+    } catch (err) {
+      API.showToast(`Orchestration notice: ${err.message}`, 'warning');
+    }
+  };
+
+  // Initialize on load
+  window.addEventListener('load', function() {
+    try {
+      initializeRadarChart();
+      initializeStreakCalendar();
+      syncDashboardData();
+    } catch (err) {
+      console.error('Failed to initialize dashboard:', err);
+    }
+  });
+
+  // Responsive chart resize
+  window.addEventListener('resize', function() {
+    if (radarChart) {
+      radarChart.resize();
+    }
+  });
+</script>
+<script src="effects.js" defer></script>
+</body>
+</html>

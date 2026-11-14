@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Path — SKILLNEX AI</title>
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="animations-3d.css">
+  <style>
+    body {
+      min-height: 100vh;
+      background: var(--grad-hero);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: var(--space-8);
+      position: relative; overflow-y: auto;
+    }
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px,transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+    .role-container {
+      position: relative; z-index: 2;
+      max-width: 1000px; width: 100%;
+    }
+    .role-header {
+      text-align: center;
+      margin-bottom: var(--space-12);
+      animation: fadeInUp 0.5s ease both;
+    }
+    .role-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+    .role-card {
+      background: var(--surface-card);
+      border: var(--border-card);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-8);
+      cursor: pointer;
+      transition: all var(--transition-spring);
+      position: relative; overflow: hidden;
+      text-align: center;
+    }
+    .role-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .role-card.student::before   { background: linear-gradient(145deg, rgba(99,102,241,0.08), rgba(168,85,247,0.05)); }
+    .role-card.pro::before       { background: linear-gradient(145deg, rgba(6,182,212,0.08), rgba(59,130,246,0.05)); }
+    .role-card.org::before       { background: linear-gradient(145deg, rgba(16,185,129,0.08), rgba(6,182,212,0.05)); }
+
+    .role-card:hover::before { opacity: 1; }
+    .role-card.student:hover  { border-color: rgba(99,102,241,0.4); transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 60px rgba(99,102,241,0.2); }
+    .role-card.pro:hover      { border-color: rgba(6,182,212,0.4);  transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 60px rgba(6,182,212,0.2); }
+    .role-card.org:hover      { border-color: rgba(16,185,129,0.4); transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 60px rgba(16,185,129,0.2); }
+
+    .role-card.selected.student { border-color: rgba(99,102,241,0.6); box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+    .role-card.selected.pro     { border-color: rgba(6,182,212,0.6);  box-shadow: 0 0 0 3px rgba(6,182,212,0.2); }
+    .role-card.selected.org     { border-color: rgba(16,185,129,0.6); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+
+    .role-emoji {
+      font-size: 56px;
+      display: block;
+      margin-bottom: var(--space-5);
+      position: relative; z-index: 1;
+    }
+    .role-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--gray-50);
+      margin-bottom: var(--space-3);
+      position: relative; z-index: 1;
+    }
+    .role-desc {
+      font-size: 13px; color: var(--gray-400);
+      line-height: 1.7;
+      margin-bottom: var(--space-6);
+      position: relative; z-index: 1;
+    }
+    .role-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .role-tag {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-full);
+      padding: 3px 10px;
+      font-size: 11px; color: var(--gray-400);
+    }
+    .role-check {
+      position: absolute; top: 16px; right: 16px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      transition: all var(--transition-base);
+      z-index: 2;
+    }
+    .role-card.selected .role-check { background: var(--accent-emerald); border-color: var(--accent-emerald); color: white; }
+
+    .proceed-btn {
+      display: flex; justify-content: center;
+      margin-top: var(--space-10);
+      animation: fadeInUp 0.5s ease 0.4s both;
+    }
+
+    @media (max-width: 768px) {
+      .role-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-orb glow-orb-blue" style="width:800px;height:800px;top:-300px;left:50%;transform:translateX(-50%);"></div>
+
+  <div class="role-container">
+    <div class="role-header">
+      <a href="index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:40px">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">SKILL<span>NEX</span></span>
+      </a>
+      <div class="badge badge-brand" style="margin:0 auto 16px;display:inline-flex">Step 1 of 2</div>
+      <h1 style="font-size:clamp(28px,4vw,44px);font-weight:900;color:var(--gray-50);letter-spacing:-0.03em;margin-bottom:12px">
+        How will you use <span class="text-gradient">SKILLNEX?</span>
+      </h1>
+      <p style="font-size:16px;color:var(--gray-400)">We'll personalize your experience based on your role.</p>
+    </div>
+
+    <div class="role-cards">
+      <!-- Student -->
+      <div class="role-card student animate-fadeInUp" onclick="selectRole(this, 'dashboard-student.html')">
+        <div class="role-check" id="check-0">✓</div>
+        <span class="role-emoji">🎓</span>
+        <h2 class="role-title">Student</h2>
+        <p class="role-desc">I'm studying at a university or bootcamp and want to build industry-relevant skills for my first job.</p>
+        <div class="role-tags">
+          <span class="role-tag">Skill Assessment</span>
+          <span class="role-tag">Career Roadmap</span>
+          <span class="role-tag">Job Matching</span>
+          <span class="role-tag">AI Mentor</span>
+          <span class="role-tag">Portfolio Builder</span>
+        </div>
+      </div>
+
+      <!-- Professional -->
+      <div class="role-card pro animate-fadeInUp delay-100" onclick="selectRole(this, 'dashboard-professional.html')">
+        <div class="role-check" id="check-1">✓</div>
+        <span class="role-emoji">💼</span>
+        <h2 class="role-title">Professional</h2>
+        <p class="role-desc">I'm working and want to accelerate my growth, land a promotion, or pivot into a new field.</p>
+        <div class="role-tags">
+          <span class="role-tag">Salary Impact</span>
+          <span class="role-tag">Career Pivot</span>
+          <span class="role-tag">Executive Coach</span>
+          <span class="role-tag">Benchmarking</span>
+          <span class="role-tag">Projects</span>
+        </div>
+      </div>
+
+      <!-- Organization -->
+      <div class="role-card org animate-fadeInUp delay-200" onclick="selectRole(this, 'dashboard-org.html')">
+        <div class="role-check" id="check-2">✓</div>
+        <span class="role-emoji">🏢</span>
+        <h2 class="role-title">Organization</h2>
+        <p class="role-desc">I manage a team, HR department, or institution and want to track and close workforce skill gaps.</p>
+        <div class="role-tags">
+          <span class="role-tag">Workforce Analytics</span>
+          <span class="role-tag">Bulk Training</span>
+          <span class="role-tag">ROI Reports</span>
+          <span class="role-tag">SSO</span>
+          <span class="role-tag">API Access</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="proceed-btn">
+      <button class="btn btn-primary btn-lg" id="proceedBtn" onclick="proceed()" disabled style="opacity:0.4;min-width:220px;justify-content:center">
+        Continue →
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--gray-600)">
+      You can always change this later in your settings.
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    let selectedDestination = null;
+
+    // Check if user is logged in and auto-select their registered role card
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = API.getUser();
+      if (user) {
+        if (user.role === 'professional') {
+          const proCard = document.querySelector('.role-card.pro');
+          if (proCard) selectRole(proCard, 'dashboard-professional.html');
+        } else if (user.role === 'organization') {
+          const orgCard = document.querySelector('.role-card.org');
+          if (orgCard) selectRole(orgCard, 'dashboard-org.html');
+        } else {
+          const studentCard = document.querySelector('.role-card.student');
+          if (studentCard) selectRole(studentCard, 'dashboard-student.html');
+        }
+      }
+    });
+
+    function selectRole(el, dest) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedDestination = dest;
+      const btn = document.getElementById('proceedBtn');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+
+    function proceed() {
+      if (!selectedDestination) return;
+      const btn = document.getElementById('proceedBtn');
+      btn.textContent = '⏳ Setting up your workspace...';
+      btn.disabled = true;
+      setTimeout(() => window.location.href = selectedDestination, 600);
+    }
+  </script>
+</body>
+</html>
