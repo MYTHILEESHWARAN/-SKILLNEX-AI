@@ -219,13 +219,16 @@
     },
 
     /**
-     * Non-intrusive Glassmorphism Toast Notification
+     * Non-intrusive Glassmorphism Toast Notification with Accessibility Support
      */
     showToast(message, type = 'info') {
       let container = document.getElementById('skillnex-toast-container');
       if (!container) {
         container = document.createElement('div');
         container.id = 'skillnex-toast-container';
+        container.setAttribute('role', 'status');
+        container.setAttribute('aria-live', 'polite');
+        container.setAttribute('aria-atomic', 'true');
         container.style.cssText = `
           position: fixed;
           top: 24px;
@@ -281,7 +284,7 @@
         toast.style.color = '#a5b4fc';
       }
 
-      toast.innerHTML = `<span>${icon}</span><span style="flex:1">${message}</span>`;
+      toast.innerHTML = `<span aria-hidden="true">${icon}</span><span style="flex:1">${message}</span>`;
       container.appendChild(toast);
 
       // Animate in

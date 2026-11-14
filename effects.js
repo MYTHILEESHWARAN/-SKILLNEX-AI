@@ -3,8 +3,14 @@
  * Enhanced premium experience with parallax, depth effects, and smooth animations
  */
 
+// ── ACCESSIBILITY: Check for reduced motion preference ──
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 // ── PARALLAX TRACKING ──
 document.addEventListener('mousemove', (e) => {
+  // Skip parallax effects if user prefers reduced motion
+  if (prefersReducedMotion) return;
+  
   const cards = document.querySelectorAll('.hover-lift, .card-hover, .feature-card, .stat-card');
   const mouseX = e.clientX / window.innerWidth;
   const mouseY = e.clientY / window.innerHeight;
@@ -111,6 +117,9 @@ document.querySelectorAll('.stat-card, .hero-stat-value').forEach(el => {
 
 // ── SCROLL-LINKED ANIMATIONS ──
 function updateScrollAnimations() {
+  // Skip scroll animations if user prefers reduced motion
+  if (prefersReducedMotion) return;
+  
   const scrolled = window.scrollY;
   const parallaxElements = document.querySelectorAll('[data-parallax]');
   
@@ -135,6 +144,9 @@ window.addEventListener('load', () => {
 // ── DEPTH EFFECT ON CARDS ──
 document.querySelectorAll('.depth-card').forEach(card => {
   card.addEventListener('mousemove', (e) => {
+    // Skip depth effects if user prefers reduced motion
+    if (prefersReducedMotion) return;
+    
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;

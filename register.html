@@ -107,37 +107,37 @@
     <form class="auth-form" style="animation:fadeInUp 0.5s ease 0.2s both" onsubmit="handleRegister(event)">
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">First Name</label>
-          <div class="input-with-icon"><span class="input-icon">👤</span><input class="form-input" type="text" placeholder="Alex"></div>
+          <label class="form-label" for="firstNameInput">First Name</label>
+          <div class="input-with-icon"><span class="input-icon" aria-hidden="true">👤</span><input class="form-input" id="firstNameInput" type="text" placeholder="Alex" aria-describedby="firstNameError"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">Last Name</label>
-          <input class="form-input" type="text" placeholder="Kumar">
+          <label class="form-label" for="lastNameInput">Last Name</label>
+          <input class="form-input" id="lastNameInput" type="text" placeholder="Kumar" aria-describedby="lastNameError">
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Email Address</label>
-        <div class="input-with-icon"><span class="input-icon">✉</span><input class="form-input" type="email" placeholder="you@example.com"></div>
+        <label class="form-label" for="emailRegisterInput">Email Address</label>
+        <div class="input-with-icon"><span class="input-icon" aria-hidden="true">✉</span><input class="form-input" id="emailRegisterInput" type="email" placeholder="you@example.com" aria-describedby="emailError"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" for="regPassword">Password</label>
         <div class="input-with-icon">
-          <span class="input-icon">🔒</span>
-          <input class="form-input" type="password" id="regPassword" placeholder="Min. 8 characters" oninput="checkStrength(this.value)">
+          <span class="input-icon" aria-hidden="true">🔒</span>
+          <input class="form-input" id="regPassword" type="password" placeholder="Min. 8 characters" oninput="checkStrength(this.value)" aria-describedby="strengthLabel passwordError">
         </div>
         <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-        <div id="strengthLabel" style="font-size:11px;color:var(--gray-600);margin-top:3px"></div>
+        <div id="strengthLabel" style="font-size:11px;color:var(--gray-600);margin-top:3px" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Confirm Password</label>
+        <label class="form-label" for="regPasswordConfirm">Confirm Password</label>
         <div class="input-with-icon">
-          <span class="input-icon">🔒</span>
-          <input class="form-input" type="password" id="regPasswordConfirm" placeholder="Re-enter password">
+          <span class="input-icon" aria-hidden="true">🔒</span>
+          <input class="form-input" id="regPasswordConfirm" type="password" placeholder="Re-enter password" aria-describedby="confirmPasswordError">
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">I am a...</label>
-        <select class="form-input" style="cursor:pointer">
+        <label class="form-label" for="roleSelect">I am a...</label>
+        <select class="form-input" id="roleSelect" style="cursor:pointer" aria-describedby="roleError">
           <option value="">Select your role</option>
           <option>Student</option>
           <option>Working Professional</option>
@@ -146,7 +146,7 @@
         </select>
       </div>
       <div style="display:flex;align-items:flex-start;gap:10px;margin-top:4px">
-        <input type="checkbox" id="terms" style="accent-color:var(--brand-500);width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0">
+        <input type="checkbox" id="terms" style="accent-color:var(--brand-500);width:16px;height:16px;cursor:pointer;margin-top:2px;flex-shrink:0" aria-describedby="termsError">
         <label for="terms" style="font-size:12px;color:var(--gray-400);cursor:pointer;line-height:1.5">
           I agree to the <a href="#" style="color:var(--brand-400);text-decoration:none">Terms of Service</a> and <a href="#" style="color:var(--brand-400);text-decoration:none">Privacy Policy</a>
         </label>
@@ -188,23 +188,52 @@
     async function handleRegister(e) {
       e.preventDefault();
       const form = e.target;
-      const firstName = form.querySelector('input[placeholder="First Name"]').value;
-      const lastName = form.querySelector('input[placeholder="Last Name"]').value;
-      const email = form.querySelector('input[type="email"]').value;
-      const password = form.querySelector('#regPassword').value;
-      const passwordConfirm = form.querySelector('#regPasswordConfirm').value;
-      const roleSelect = form.querySelector('select').value;
-      const terms = form.querySelector('#terms').checked;
+      const firstNameInput = form.querySelector('#firstNameInput');
+      const lastNameInput = form.querySelector('#lastNameInput');
+      const emailInput = form.querySelector('#emailRegisterInput');
+      const passwordInput = form.querySelector('#regPassword');
+      const passwordConfirmInput = form.querySelector('#regPasswordConfirm');
+      const roleSelect = form.querySelector('#roleSelect');
+      const termsCheckbox = form.querySelector('#terms');
+      
       const errors = [];
 
+      // Clear previous error states
+      [firstNameInput, lastNameInput, emailInput, passwordInput, passwordConfirmInput, roleSelect, termsCheckbox].forEach(el => {
+        if (el) el.removeAttribute('aria-invalid');
+      });
+      const existingError = form.parentElement.querySelector('[role="alert"]');
+      if (existingError) existingError.remove();
+
       // Validation
-      if (!firstName.trim()) errors.push('First name is required');
-      if (!lastName.trim()) errors.push('Last name is required');
-      if (!email.includes('@')) errors.push('Please enter a valid email');
-      if (password.length < 8) errors.push('Password must be at least 8 characters');
-      if (password !== passwordConfirm) errors.push('Passwords do not match');
-      if (!roleSelect) errors.push('Please select your role');
-      if (!terms) errors.push('You must accept the terms of service');
+      if (!firstNameInput.value.trim()) {
+        errors.push('First name is required');
+        firstNameInput.setAttribute('aria-invalid', 'true');
+      }
+      if (!lastNameInput.value.trim()) {
+        errors.push('Last name is required');
+        lastNameInput.setAttribute('aria-invalid', 'true');
+      }
+      if (!emailInput.value.includes('@')) {
+        errors.push('Please enter a valid email');
+        emailInput.setAttribute('aria-invalid', 'true');
+      }
+      if (passwordInput.value.length < 8) {
+        errors.push('Password must be at least 8 characters');
+        passwordInput.setAttribute('aria-invalid', 'true');
+      }
+      if (passwordInput.value !== passwordConfirmInput.value) {
+        errors.push('Passwords do not match');
+        passwordConfirmInput.setAttribute('aria-invalid', 'true');
+      }
+      if (!roleSelect.value) {
+        errors.push('Please select your role');
+        roleSelect.setAttribute('aria-invalid', 'true');
+      }
+      if (!termsCheckbox.checked) {
+        errors.push('You must accept the terms of service');
+        termsCheckbox.setAttribute('aria-invalid', 'true');
+      }
 
       if (errors.length > 0) {
         showRegistrationError(errors.join('\n'));
@@ -213,8 +242,8 @@
 
       // Map UI role to backend allowed public roles
       let mappedRole = 'student';
-      if (roleSelect.includes('Professional')) mappedRole = 'professional';
-      else if (roleSelect.includes('Recruiter') || roleSelect.includes('Organization')) mappedRole = 'organization';
+      if (roleSelect.value.includes('Professional')) mappedRole = 'professional';
+      else if (roleSelect.value.includes('Recruiter') || roleSelect.value.includes('Organization')) mappedRole = 'organization';
 
       const btn = form.querySelector('button');
       const originalBtnText = btn.textContent;
@@ -223,9 +252,9 @@
 
       try {
         const response = await API.post('/auth/register', {
-          name: `${firstName.trim()} ${lastName.trim()}`,
-          email: email.trim(),
-          password: password,
+          name: `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`,
+          email: emailInput.value.trim(),
+          password: passwordInput.value,
           role: mappedRole
         });
 
@@ -239,6 +268,7 @@
       } catch (err) {
         btn.textContent = originalBtnText;
         btn.disabled = false;
+        emailInput.setAttribute('aria-invalid', 'true');
         showRegistrationError(err.message || 'Registration failed. Please try again.');
       }
     }
@@ -249,6 +279,8 @@
       
       const errorDiv = document.createElement('div');
       errorDiv.setAttribute('role', 'alert');
+      errorDiv.setAttribute('aria-live', 'polite');
+      errorDiv.setAttribute('aria-atomic', 'true');
       errorDiv.style.cssText = 'background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.3);color:#f43f5e;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.6';
       errorDiv.textContent = message;
       

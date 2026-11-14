@@ -132,6 +132,41 @@ body {
   overflow-x: hidden;
 }
 
+/* ── Accessibility: Focus Visible & Keyboard Navigation ── */
+a:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ensure proper zoom support at 200% */
+@media (max-height: 600px), (max-width: 480px) {
+  body { font-size: 14px; }
+  .container { padding: 0 var(--space-4); }
+}
+
 /* ── Typography Scale ── */
 .text-xs    { font-size: 11px; line-height: 1.5; }
 .text-sm    { font-size: 13px; line-height: 1.5; }
@@ -209,13 +244,17 @@ body {
   letter-spacing: 0.01em;
   cursor: pointer;
   border: none;
-  outline: none;
   transition: all var(--transition-base);
   white-space: nowrap;
   text-decoration: none;
   user-select: none;
   position: relative;
   overflow: hidden;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
 }
 
 .btn::before {
@@ -352,7 +391,7 @@ body {
 .form-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--gray-300);
+  color: var(--gray-200);
   letter-spacing: 0.02em;
 }
 
@@ -365,8 +404,14 @@ body {
   font-size: 14px;
   color: var(--gray-100);
   transition: all var(--transition-fast);
-  outline: none;
   width: 100%;
+}
+
+.form-input:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-color: var(--brand-500);
+  background: rgba(99,102,241,0.05);
 }
 
 .form-input:focus {
@@ -375,7 +420,7 @@ body {
   box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
 }
 
-.form-input::placeholder { color: var(--gray-500); }
+.form-input::placeholder { color: var(--gray-400); }
 
 /* ── Progress Bar ── */
 .progress-bar {
@@ -532,6 +577,11 @@ body {
   transition: all var(--transition-fast);
   margin-bottom: 2px;
   text-decoration: none;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
 }
 
 .nav-item:hover { background: var(--surface-hover); color: var(--gray-100); }

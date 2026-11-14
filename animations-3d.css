@@ -333,3 +333,38 @@ a, button {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ── ACCESSIBILITY: Reduced Motion Support ── */
+/* For users with vestibular disorders, motion sensitivity, or who prefer reduced animation */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Ensure transforms are removed */
+  .float-3d,
+  .parallax-slow,
+  .hover-depth:hover {
+    transform: none !important;
+  }
+  
+  /* Keep essential visual feedback */
+  .hover-depth:hover {
+    opacity: 0.8;
+  }
+  
+  .card-hover:hover,
+  .feature-card:hover,
+  .persona-card:hover,
+  .pricing-card:hover {
+    transform: none !important;
+    opacity: 0.9;
+  }
+}
